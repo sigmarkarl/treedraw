@@ -13,6 +13,20 @@ class treedraw {
 	double dw;
 	double dh;
 
+  bool				center = false;
+	int					equalHeight = 0;
+	bool				showscale = true;
+	bool				showbubble = false;
+	bool				showlinage = false;
+	bool				showleafnames = true;
+	bool  			rightalign = false;
+	bool				circular = false;
+	bool				radial = false;
+
+  double log10(double x) {
+    return log(x) / log(10);
+  }
+
   double fontscale = 5.0;
 	double hchunk = 10.0;
 	void drawTree( TreeUtil treeutil ) {
@@ -43,7 +57,7 @@ class treedraw {
 				double xoffset = 5.0-lbounds[0]-bounds[0]*xscale;
 				double yoffset = 5.0-lbounds[1]-bounds[1]*xscale;
 				
-				int hval = (int)((bounds[3]-bounds[1])*xscale+(lbounds[3]-lbounds[1])+10);
+				int hval = ((bounds[3]-bounds[1])*xscale+(lbounds[3]-lbounds[1])+10) as int;
 				canvas.setSize((ww-10)+"px", hval+"px");
 				canvas.setCoordinateSpaceWidth( ww-10 );
 				canvas.setCoordinateSpaceHeight( hval );
@@ -72,9 +86,9 @@ class treedraw {
 			
 			String treelabel = treeutil.getTreeLabel();
 			
-			int hsize = (int)(hchunk*leaves);
-			if( treelabel != null ) hsize += 2*hchunk;
-			if( showscale ) hsize += 2*hchunk;
+			int hsize = hchunk*leaves as int;
+			if( treelabel != null ) hsize += 2*hchunk as int;
+			if( showscale ) hsize += 2*hchunk as int;
 			if( circular ) {
 				canvas.setSize((ww-10)+"px", (ww-10)+"px");
 				canvas.setCoordinateSpaceWidth( ww-10 );
@@ -165,7 +179,7 @@ class treedraw {
 					double wh = n.getCanvasX()-10;
 					double ch = canvas.getCoordinateSpaceHeight();
 					
-					double nh = pow( 10.0, floor( log10( h/5.0 ) ) );
+					double nh = pow( 10.0, log10( h/5.0 ) ).floorToDouble();
 					double nwh = wh*nh/h;
 					
 					ctx.beginPath();
@@ -181,6 +195,101 @@ class treedraw {
 				}
 			}
 		}
+	}
+
+  double getMaxInternalNameLength( Node n, Context2d ctx ) {
+		double ret = 0.0;
+		String name = n.getName();
+		List<Node> nl = n.getNodes();
+		if( nl != null ) {
+			if( name != null && nl.length > 0 ) ret = ctx.measureText( name ).getWidth();
+		
+			for( Node nn in n.getNodes() ) {
+				double val = getMaxInternalNameLength( nn, ctx );
+				if( val > ret ) ret = val;
+			}
+		}
+		return ret;
+	}
+
+  double getHeight( Node n ) {
+		double h = n.geth();
+		double d = h + ((n.getParent() != null) ? getHeight( n.getParent() ) : 0.0);
+		return d;
+	}
+	
+	void recursiveLeavesGet( Node root, List<Node> leaves ) {
+		List<Node> nodes = root.getNodes();
+		if( nodes == null || nodes.length == 0 ) {
+			leaves.add( root );
+		} else {
+			for( Node n in nodes ) {
+				recursiveLeavesGet( n, leaves );
+			}
+		}
+	}
+	
+	Node getMaxNameLength( Node root, Context2d ctx ) {
+		List<Node>	leaves = [];
+		recursiveLeavesGet( root, leaves );
+		
+		Node sel = null;
+		double max = 0.0;
+		//console( ""+leaves.length);
+		for( Node node : leaves ) {
+			String name = node.getName();
+			//if( node.getMeta() != null ) name += " ("+node.getMeta()+")";
+			TextMetrics tm = ctx.measureText( name );
+			double tw = tm.getWidth();
+			//double h = node.getHeight();
+			//double val = h/(ww-tw);
+			if( tw > max ) {
+				max = tw;
+				sel = node;
+			}
+		}
+		
+		return sel;
+	}
+
+  Node getMaxHeight( Node root, Context2d ctx, int ww, bool includetext ) {
+		List<Node>	leaves = [];
+		recursiveLeavesGet( root, leaves );
+		
+		Node sel = null;
+		double max = 0.0;
+		
+		if( includetext ) {
+			for( Node node in leaves ) {
+				String name = node.getName();
+				//if( node.getMeta() != null ) name += " ("+node.getMeta()+")";
+				TextMetrics tm = ctx.measureText( name );
+				double tw = tm.getWidth();
+				double h = node.getHeight();
+				
+				double val = h/(ww-tw);
+				if( val > max ) {
+					max = val;
+					sel = node;
+				}
+			}
+		} else {
+			for( Node node in leaves ) {
+				double h = node.getHeight();
+				if( h > max ) {
+					max = h;
+					sel = node;
+				}
+			}
+		}
+		
+		/*if( sel != null ) {
+			String name = sel.getName();
+			if( sel.getMeta() != null ) name += " ("+sel.getMeta()+")";
+			console( name );
+		}*/
+		
+		return sel;
 	}
 
   void handleTree() {
@@ -205,6 +314,36 @@ class treedraw {
 		//else console( "fjorulalli " + n.toString() );
 		//if( n.toString().indexOf("bow_data") == -1 ) 
     treeutil.setNode( n );
+	}
+
+  List<double> parseDistance( int len, List<String> lines, List<String> names ) {
+		List<double> dvals = List.filled(len*len,0.0);
+		int m = 0;
+		int u = 0;
+		for( int i = 1; i < lines.length; i++ ) {
+			String line = lines[i];
+			List<String> ddstrs = line.split("[ \t]+");
+			if( !line.startsWith(" ") ) {
+				m++;
+				u = 0;
+				
+				//int si = ddstrs[0].indexOf('_');
+				//String name = si == -1 ? ddstrs[0] : ddstrs[0].substring( 0, si );
+				//console( "name: " + name );
+				
+				String name = ddstrs[0];
+				names.add( name );
+			}
+			if( ddstrs.length > 2 ) {
+				for( int k = 1; k < ddstrs.length; k++ ) {
+					int idx = (m-1)*len+(u++);
+					if( idx < dvals.length ) dvals[idx] = double.parse(ddstrs[k]);
+					//else console( m + " more " + u );
+				}
+			}
+		}
+		
+		return dvals;
 	}
 
   List<Sequence> currentSeqs = null;
@@ -239,7 +378,7 @@ class treedraw {
 					i = str.indexOf('(', i);
 					int l = str.indexOf(';', i+1);
 					
-					Map<String,String> namemap = new HashMap<String,String>();
+					Map<String,String> namemap = new Map<String,String>();
 					int t = str.indexOf("translate");
 					int n = str.indexOf("\n", t);
 					int c = str.indexOf(";", n);
@@ -249,7 +388,7 @@ class treedraw {
 					for( String name in split ) {
 						String trim = name.trim();
 						int v = trim.indexOf(' ');
-						namemap.put( trim.substring(0, v), trim.substring(v+1) );
+						namemap[trim.substring(0, v)] = trim.substring(v+1);
 					}
 					
 					String tree = str.substring(i, l).replaceAll("[\r\n]+", "");
@@ -499,16 +638,16 @@ class treedraw {
 						db.center();
 					}
 				} else {
-					String[] lines = str.split("\n");
-					names = Arrays.asList( lines[0].split("\t") );
-					len = names.size();
-					dvals = new double[len*len];
+					List<String> lines = str.split("\n");
+					names = lines[0].split("\t");
+					len = names.length;
+					dvals = List.filled(len*len,0.0);
 					for( int i = 1; i < lines.length; i++ ) {
-						String[] ddstrs = lines[i].split("\t");
+						List<String> ddstrs = lines[i].split("\t");
 						if( ddstrs.length > 1 ) {
 							int k = 0;
-							for( String ddstr : ddstrs ) {
-								dvals[(i-1)*len+(k++)] = Double.parseDouble(ddstr);
+							for( String ddstr in ddstrs ) {
+								dvals[(i-1)*len+(k++)] = double.parse(ddstr);
 							}
 						}
 					}
