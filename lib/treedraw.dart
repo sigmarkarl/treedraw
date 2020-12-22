@@ -920,8 +920,9 @@ class TreeDraw {
                           if (i + 1 < infoList.length && !showbubble) {
                             String colorstr = infoList[i + 1];
                             Paint paint = Paint();
-                            paint.color = Color(
-                                colorstr.substring(1, colorstr.length - 1));
+                            paint.color = Color(int.parse(
+                                colorstr.substring(1, colorstr.length - 1),
+                                radix: 16));
                             paint.style = PaintingStyle.fill;
                             g2.drawRect(
                                 Rect.fromLTWH(
@@ -942,20 +943,25 @@ class TreeDraw {
                         }
                       }
                     } else {
+                      Paint paint = Paint();
+                      paint.style = PaintingStyle.fill;
+
                       g2.translate(cx, cy);
                       g2.rotate(a);
                       if (!showbubble && resnode.getColor() != null) {
-                        g2.setFillStyle(resnode.getColor());
-                        g2.fillRect(
-                            -7 +
-                                (t++) * fontSize -
-                                (rightalign ? maxstrw : 0.0),
-                            nfrmh / 2.0 - nfrmh + 1.0,
-                            (rightalign ? maxstrw : strw) + 15,
-                            nfrmh * 1.15);
+                        paint.color = Color(resnode.getColorInt());
+                        g2.drawRect(
+                            Rect.fromLTWH(
+                                -7 +
+                                    (t++) * fontSize -
+                                    (rightalign ? maxstrw : 0.0),
+                                nfrmh / 2.0 - nfrmh + 1.0,
+                                (rightalign ? maxstrw : strw) + 15,
+                                nfrmh * 1.15),
+                            paint);
                       }
-                      g2.fillText(
-                          substr, rightalign ? -strw : 0.0, nnstrh / 2.0);
+                      textPainter.paint(
+                          g2, Offset(rightalign ? -strw : 0.0, nnstrh / 2.0));
                       g2.rotate(-a);
                       g2.translate(-cx, -cy);
 
@@ -967,26 +973,30 @@ class TreeDraw {
                           cy = (w + val * circularScale * sin(a)) / 2.0;
 
                           String sstr = infoList[i];
-                          tm = g2.measureText(sstr);
-                          strw = tm.getWidth();
+                          TextSpan subSpan = TextSpan(text: sstr);
+                          textPainter.text = subSpan;
+                          textPainter.layout();
+                          strw = textPainter.width;
 
                           g2.translate(cx, cy);
                           g2.rotate(a);
                           if (i + 1 < infoList.length && !showbubble) {
                             String colorstr = infoList[i + 1];
-                            g2.setFillStyle(
-                                colorstr.substring(1, colorstr.length - 1));
-                            g2.fillRect(
-                                -7 +
-                                    (t++) * fontSize -
-                                    (rightalign ? 0.0 : -strw),
-                                nfrmh / 2.0 - nfrmh + 1.0,
-                                (rightalign ? strw : strw) + 15,
-                                nfrmh * 1.15);
-                            g2.setFillStyle("#000000");
+                            paint.color = Color(int.parse(
+                                colorstr.substring(1, colorstr.length - 1),
+                                radix: 16));
+                            g2.drawRect(
+                                Rect.fromLTWH(
+                                    -7 +
+                                        (t++) * fontSize -
+                                        (rightalign ? 0.0 : -strw),
+                                    nfrmh / 2.0 - nfrmh + 1.0,
+                                    (rightalign ? strw : strw) + 15,
+                                    nfrmh * 1.15),
+                                paint);
                           }
-                          g2.fillText(
-                              sstr, rightalign ? 0.0 : strw, nnstrh / 2.0);
+                          textPainter.paint(g2,
+                              Offset(rightalign ? 0.0 : strw, nnstrh / 2.0));
                           g2.rotate(-a);
                           g2.translate(-cx, -cy);
 
@@ -1004,26 +1014,38 @@ class TreeDraw {
                     //g2.fillText(substr, (w+lx*0.8*cos( a ))/2.0, (w+lx*0.8*sin( a ))/2.0 );
                   } else {
                     if (!showbubble && resnode.getColor() != null) {
-                      double strw = g2.measureText(str).getWidth();
-                      g2.setFillStyle(resnode.getColor());
-                      g2.fillRect(
-                          nx + 4 + 10 + (t++) * fontSize,
-                          y + ny + nnstrh / 2.0 - nnstrh + 1.0,
-                          strw + 15,
-                          nnstrh * 1.15);
-                      g2.setFillStyle("#000000");
+                      TextSpan subSpan = TextSpan(text: str);
+                      textPainter.text = subSpan;
+                      textPainter.layout();
+                      double strw = textPainter.width;
+
+                      Paint paint = Paint();
+                      paint.style = PaintingStyle.fill;
+                      paint.color = Color(resnode.getColorInt());
+                      g2.drawRect(
+                          Rect.fromLTWH(
+                              nx + 4 + 10 + (t++) * fontSize,
+                              y + ny + nnstrh / 2.0 - nnstrh + 1.0,
+                              strw + 15,
+                              nnstrh * 1.15),
+                          paint);
                     }
 
+                    TextSpan textSpan = TextSpan(text: substr);
+                    textPainter.text = textSpan;
+                    textPainter.layout();
                     ly += nnstrh / 2.0;
                     if (!rightalign) {
-                      g2.fillText(substr, lx, ly);
+                      textPainter.paint(g2, Offset(lx, ly));
                     } else {
-                      TextMetrics tm = g2.measureText(substr);
-                      double strw = tm.getWidth();
-                      g2.fillText(substr, w - addon - strw, ly);
+                      double strw = textPainter.width;
+                      textPainter.paint(g2, Offset(w - addon - strw, ly));
                     }
                   }
-                  pos += g2.measureText(substr).getWidth();
+                  TextSpan textSpan = TextSpan(text: substr);
+                  textPainter.text = textSpan;
+                  textPainter.layout();
+                  pos += textPainter.width;
 
                   int next = minval + tag.length;
                   start = next;
@@ -1052,23 +1074,31 @@ class TreeDraw {
                     //double cx = (w+val*cos( a ))/2.0;
                     //double cy = (w+val*sin( a ))/2.0;
 
-                    TextMetrics tm = g2.measureText(substr);
-                    double strw = tm.getWidth();
+                    Paint paint = Paint();
+                    paint.style = PaintingStyle.fill;
+
+                    TextSpan textSpan = TextSpan(text: substr);
+                    TextPainter textPainter = TextPainter(text: textSpan);
+                    textPainter.layout();
+                    double strw = textPainter.width;
                     if (a > pi / 2.0 && a < 3.0 * pi / 2.0) {
                       //u += 0.5*total;
                       g2.translate(cx, cy);
                       g2.rotate(a + pi);
                       if (!showbubble && resnode.getColor() != null) {
-                        g2.setFillStyle(resnode.getColor());
-                        g2.fillRect(
-                            -7 + (t++) * fontSize - (rightalign ? 0.0 : strw),
-                            nfrmh / 2.0 - nfrmh + 1.0,
-                            (rightalign ? maxstrw : strw) + 15,
-                            nfrmh * 1.15);
-                        g2.setFillStyle("#000000");
+                        paint.color = Color(resnode.getColorInt());
+                        g2.drawRect(
+                            Rect.fromLTWH(
+                                -7 +
+                                    (t++) * fontSize -
+                                    (rightalign ? 0.0 : strw),
+                                nfrmh / 2.0 - nfrmh + 1.0,
+                                (rightalign ? maxstrw : strw) + 15,
+                                nfrmh * 1.15),
+                            paint);
                       }
-                      g2.fillText(
-                          substr, rightalign ? 0.0 : -strw, nnstrh / 2.0);
+                      textPainter.paint(
+                          g2, Offset(rightalign ? 0.0 : -strw, nnstrh / 2.0));
                       g2.rotate(-a - pi);
                       g2.translate(-cx, -cy);
 
@@ -1080,26 +1110,37 @@ class TreeDraw {
                           cy = (w + val * circularScale * sin(a)) / 2.0;
 
                           String sstr = infoList[i];
-                          tm = g2.measureText(sstr);
-                          strw = tm.getWidth();
+                          TextSpan subSpan = TextSpan(text: sstr);
+                          textPainter.text = subSpan;
+                          textPainter.layout();
+                          strw = textPainter.width;
 
                           g2.translate(cx, cy);
                           g2.rotate(a + pi);
                           if (i + 1 < infoList.length && !showbubble) {
                             String colorstr = infoList[i + 1];
-                            g2.setFillStyle(
-                                colorstr.substring(1, colorstr.length - 1));
-                            g2.fillRect(
-                                -7 - (t) * strw - (rightalign ? strw : 0.0) - 0,
-                                nfrmh / 2.0 - nfrmh + 1.0,
-                                (rightalign ? strw : strw) + 10,
-                                nfrmh * 1.15);
-                            g2.setFillStyle("#000000");
+                            paint.color = Color(int.parse(
+                                colorstr.substring(1, colorstr.length - 1),
+                                radix: 16));
+                            g2.drawRect(
+                                Rect.fromLTWH(
+                                    -7 -
+                                        (t) * strw -
+                                        (rightalign ? strw : 0.0) -
+                                        0,
+                                    nfrmh / 2.0 - nfrmh + 1.0,
+                                    (rightalign ? strw : strw) + 10,
+                                    nfrmh * 1.15),
+                                paint);
                           }
-                          g2.fillText(
-                              sstr,
-                              -7 - (t) * strw + (rightalign ? -strw : 0.0) + 5,
-                              strh / 2.0);
+                          textPainter.paint(
+                              g2,
+                              Offset(
+                                  -7 -
+                                      (t) * strw +
+                                      (rightalign ? -strw : 0.0) +
+                                      5,
+                                  strh / 2.0));
                           g2.rotate(-a - pi);
                           g2.translate(-cx, -cy);
 
@@ -1113,18 +1154,19 @@ class TreeDraw {
                       g2.translate(cx, cy);
                       g2.rotate(a);
                       if (!showbubble && resnode.getColor() != null) {
-                        g2.setFillStyle(resnode.getColor());
-                        g2.fillRect(
-                            -7 +
-                                (t++) * fontSize -
-                                (rightalign ? maxstrw : 0.0),
-                            nfrmh / 2.0 - nfrmh + 1.0,
-                            (rightalign ? maxstrw : strw) + 15,
-                            nfrmh * 1.15);
-                        g2.setFillStyle("#000000");
+                        paint.color = Color(resnode.getColorInt());
+                        g2.drawRect(
+                            Rect.fromLTWH(
+                                -7 +
+                                    (t++) * fontSize -
+                                    (rightalign ? maxstrw : 0.0),
+                                nfrmh / 2.0 - nfrmh + 1.0,
+                                (rightalign ? maxstrw : strw) + 15,
+                                nfrmh * 1.15),
+                            paint);
                       }
-                      g2.fillText(
-                          substr, rightalign ? -strw : 0.0, nnstrh / 2.0);
+                      textPainter.paint(
+                          g2, Offset(rightalign ? -strw : 0.0, nnstrh / 2.0));
                       g2.rotate(-a);
                       g2.translate(-cx, -cy);
 
@@ -1138,27 +1180,38 @@ class TreeDraw {
                           cy = (w + val * circularScale * sin(a)) / 2.0;
 
                           String sstr = infoList[i];
-                          tm = g2.measureText(sstr);
-                          strw = tm.getWidth();
+                          TextSpan subSpan = TextSpan(text: sstr);
+                          textPainter.text = subSpan;
+                          textPainter.layout();
+                          strw = textPainter.width;
                           tstrw += strw;
 
                           g2.translate(cx, cy);
                           g2.rotate(a);
                           if (i + 1 < infoList.length && !showbubble) {
                             String colorstr = infoList[i + 1];
-                            g2.setFillStyle(
-                                colorstr.substring(1, colorstr.length - 1));
-                            g2.fillRect(
-                                -7 + (t) * strw - (rightalign ? 0.0 : strw) + 5,
-                                nfrmh / 2.0 - nfrmh + 1.0,
-                                (rightalign ? strw : strw) + 10,
-                                nfrmh * 1.15);
-                            g2.setFillStyle("#000000");
+                            paint.color = Color(int.parse(
+                                colorstr.substring(1, colorstr.length - 1),
+                                radix: 16));
+                            g2.drawRect(
+                                Rect.fromLTWH(
+                                    -7 +
+                                        (t) * strw -
+                                        (rightalign ? 0.0 : strw) +
+                                        5,
+                                    nfrmh / 2.0 - nfrmh + 1.0,
+                                    (rightalign ? strw : strw) + 10,
+                                    nfrmh * 1.15),
+                                paint);
                           }
-                          g2.fillText(
-                              sstr,
-                              -7 + (t) * strw + (rightalign ? 0.0 : strw) + 10,
-                              nnstrh / 2.0);
+                          textPainter.paint(
+                              g2,
+                              Offset(
+                                  -7 +
+                                      (t) * strw +
+                                      (rightalign ? 0.0 : strw) +
+                                      10,
+                                  nnstrh / 2.0));
                           g2.rotate(-a);
                           g2.translate(-cx, -cy);
 
@@ -1174,23 +1227,32 @@ class TreeDraw {
                     //g2.fillText(substr, (w+lx*0.8*cos( a ))/2.0, (w+lx*0.8*sin( a ))/2.0 );
                   } else {
                     if (!showbubble && resnode.getColor() != null) {
-                      double strw = g2.measureText(str).getWidth();
-                      g2.setFillStyle(resnode.getColor());
-                      g2.fillRect(
-                          nx + 4 + 10 + (t++) * fontSize,
-                          y + ny + nnstrh / 2.0 - nnstrh + 1.0,
-                          strw + 15,
-                          nnstrh * 1.15);
-                      g2.setFillStyle("#000000");
+                      TextSpan textSpan = TextSpan(text: str);
+                      TextPainter textPainter = TextPainter(text: textSpan);
+                      textPainter.layout();
+                      double strw = textPainter.width;
+
+                      Paint paint = Paint();
+                      paint.style = PaintingStyle.fill;
+                      paint.color = Color(resnode.getColorInt());
+                      g2.drawRect(
+                          Rect.fromLTWH(
+                              nx + 4 + 10 + (t++) * fontSize,
+                              y + ny + nnstrh / 2.0 - nnstrh + 1.0,
+                              strw + 15,
+                              nnstrh * 1.15),
+                          paint);
                     }
 
                     ly += nnstrh / 2.0;
                     if (!rightalign) {
-                      g2.fillText(substr, lx, ly);
+                      textPainter.paint(g2, Offset(lx, ly));
                     } else {
-                      TextMetrics tm = g2.measureText(substr);
-                      double strw = tm.getWidth();
-                      g2.fillText(substr, w - addon - strw, ly);
+                      TextSpan textSpan = TextSpan(text: substr);
+                      TextPainter textPainter = TextPainter(text: textSpan);
+                      textPainter.layout();
+                      double strw = textPainter.width;
+                      textPainter.paint(g2, Offset(w - addon - strw, ly));
                     }
                   }
                   start = str.length;

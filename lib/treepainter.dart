@@ -9,7 +9,7 @@ class TreePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    treeDraw.drawTree(treeUtil)
+    treeDraw.drawTree(canvas, size, treeUtil);
     /*var paint = Paint()
       ..style = PaintingStyle.fill
       ..color = Color(0xff00ff00);
