@@ -185,15 +185,13 @@ class TreeDraw {
             double xx2 = xscale * x0 + xoffset;
             double yy2 = xscale * y0 + yoffset;
 
-            Path path = Path();
-            path.moveTo(xx1, yy1);
-            path.lineTo(xx2, yy2);
-            path.close();
+            Offset p1 = Offset(xx1, yy1);
+            Offset p2 = Offset(xx2, yy2);
 
             Paint paint = Paint();
             paint.style = PaintingStyle.stroke;
             paint.color = Color(0xff000000);
-            canvas.drawPath(path, paint);
+            canvas.drawLine(p1, p2, paint);
           }
         }
 
@@ -495,7 +493,8 @@ class TreeDraw {
         //if( node.getMeta() != null ) name += " ("+node.getMeta()+")";
 
         TextSpan textSpan = TextSpan(text: name);
-        TextPainter textPainter = new TextPainter(text: textSpan);
+        TextPainter textPainter =
+            TextPainter(text: textSpan, textDirection: TextDirection.ltr);
         textPainter.layout();
         double textwidth = showleafnames ? textPainter.width : 0.0;
 
@@ -586,7 +585,9 @@ class TreeDraw {
 
           String htext = nh.toString();
           TextSpan textSpan = TextSpan(text: htext);
-          TextPainter textPainter = TextPainter(text: textSpan);
+          TextPainter textPainter =
+              TextPainter(text: textSpan, textDirection: TextDirection.ltr);
+          textPainter.layout();
           double sw = textPainter.width;
           textPainter.paint(canvas, Offset(10 + (nwh - sw) / 2.0, ch - 8));
           //double sw = ctx.measureText( htext ).getWidth();
@@ -854,7 +855,8 @@ class TreeDraw {
 								if( !fontstr.equals(g2.getFont()) ) g2.setFont( fontstr );*/
 
                 TextSpan textSpan = TextSpan(text: maxstr);
-                TextPainter textPainter = TextPainter(text: textSpan);
+                TextPainter textPainter = TextPainter(
+                    text: textSpan, textDirection: TextDirection.ltr);
                 textPainter.layout();
                 double maxstrw = textPainter.width;
                 //.measureText(maxstr).getWidth();
@@ -1228,7 +1230,8 @@ class TreeDraw {
                   } else {
                     if (!showbubble && resnode.getColor() != null) {
                       TextSpan textSpan = TextSpan(text: str);
-                      TextPainter textPainter = TextPainter(text: textSpan);
+                      TextPainter textPainter = TextPainter(
+                          text: textSpan, textDirection: TextDirection.ltr);
                       textPainter.layout();
                       double strw = textPainter.width;
 
@@ -1277,7 +1280,8 @@ class TreeDraw {
         bool b = use.length > 2;
 
         TextSpan useSpan = TextSpan(text: use);
-        TextPainter textPainter = TextPainter(text: useSpan);
+        TextPainter textPainter =
+            TextPainter(text: useSpan, textDirection: TextDirection.ltr);
         textPainter.layout();
 
         /*if (color != null)
@@ -1939,14 +1943,14 @@ class TreeDraw {
               (w + nx * circularScale * sin(a2)) / 2.0);
         } else {
           path.moveTo(startx, y + ret);
-          path.lineTo(startx, yfloor);
-          path.moveTo(startx, yfloor);
-          path.lineTo(nx, yfloor);
+          //path.lineTo(startx, yfloor);
+          //path.moveTo(startx, yfloor);
+          //path.lineTo(nx, yfloor);
         }
       } else {
         path.moveTo(x + startx, starty);
-        path.lineTo(x + nx, starty);
-        path.lineTo(x + nx, ny);
+        //path.lineTo(x + nx, starty);
+        //path.lineTo(x + nx, ny);
       }
       path.close();
       Paint paint = Paint();
@@ -2054,7 +2058,9 @@ class TreeDraw {
         }
 
         if (nleaves == 0) {
-          int v = ((nodearray.length * (y + ny)) / size.height) as int;
+          double d = nodearray.length * (y + ny);
+          d = d / size.height;
+          int v = d.toInt();
           //console( nodearray.length + "  " + canvas.getCoordinateSpaceHeight() + "  " + v );
           if (v >= 0 && v < nodearray.length) nodearray[v] = resnode;
         }
@@ -2127,6 +2133,16 @@ class TreeDraw {
       //drawTreeRecursive( g2, resnode, w, h, dw, dh, x+dw*total, y+h, (dw*nleaves)/2, ny, paint ? shadeColor : null );
 
       //g2.setStroke( vStroke );
+
+      Paint paint = Paint();
+      paint.style = PaintingStyle.stroke;
+      if (resnode.isSelected()) {
+        paint.color = Color(0xff000000);
+        paint.strokeWidth = 2.0;
+      } else {
+        paint.color = Color(0xff333333);
+        paint.strokeWidth = 1.0;
+      }
       Path path = Path();
       if (vertical) {
         double yfloor = y + ny; //Math.floor(y+ny);
@@ -2150,29 +2166,27 @@ class TreeDraw {
           //g2.beginPath();
           path.moveTo((w + cx * cos(a2)) / 2.0, (w + cx * sin(a2)) / 2.0);
           path.lineTo((w + cnx * cos(a2)) / 2.0, (w + cnx * sin(a2)) / 2.0);
+          path.close();
+          g2.drawPath(path, paint);
           //g2.closePath();
         } else {
-          path.moveTo(startx, y + starty);
-          path.lineTo(startx, yfloor);
-          //g2.moveTo( startx, yfloor );
-          path.lineTo(nx, yfloor);
+          Offset p1 = Offset(startx, y + starty);
+          Offset p2 = Offset(startx, yfloor);
+          Offset p3 = Offset(nx, yfloor);
+
+          g2.drawLine(p1, p2, paint);
+          g2.drawLine(p2, p3, paint);
+
+          //path.moveTo( startx, yfloor );
+          //path.lineTo(nx, yfloor);
         }
       } else {
         path.moveTo(x + startx, starty);
         path.lineTo(x + nx, starty);
         path.lineTo(x + nx, ny);
+        path.close();
+        g2.drawPath(path, paint);
       }
-      path.close();
-      Paint paint = Paint();
-      paint.style = PaintingStyle.stroke;
-      if (resnode.isSelected()) {
-        paint.color = Color(0xff000000);
-        paint.strokeWidth = 2.0;
-      } else {
-        paint.color = Color(0xff333333);
-        paint.strokeWidth = 1.0;
-      }
-      g2.drawPath(path, paint);
 
       if (showbubble) {
         int ncolor = resnode.getColorInt();
@@ -2231,7 +2245,8 @@ class TreeDraw {
 
   double getHeight(Node n) {
     double h = n.geth();
-    double d = h + ((n.getParent() != null) ? getHeight(n.getParent()) : 0.0);
+    double d = (h != null ? h : 0.0) +
+        ((n.getParent() != null) ? getHeight(n.getParent()) : 0.0);
     return d;
   }
 
@@ -2257,7 +2272,8 @@ class TreeDraw {
       String name = node.getName();
       //if( node.getMeta() != null ) name += " ("+node.getMeta()+")";
       TextSpan textSpan = TextSpan(text: name);
-      TextPainter textPainter = TextPainter(text: textSpan);
+      TextPainter textPainter =
+          TextPainter(text: textSpan, textDirection: TextDirection.ltr);
       textPainter.layout();
       //TextMetrics tm = ctx.measureText( name );
       double tw = textPainter.width;
@@ -2284,7 +2300,9 @@ class TreeDraw {
         String name = node.getName();
         //if( node.getMeta() != null ) name += " ("+node.getMeta()+")";
         TextSpan textSpan = TextSpan(text: name);
-        TextPainter textPainter = TextPainter(text: textSpan);
+        TextPainter textPainter =
+            TextPainter(text: textSpan, textDirection: TextDirection.ltr);
+        textPainter.layout();
         //TextMetrics tm = ctx.measureText( name );
         double tw = textPainter.width;
         double h = node.getHeight();

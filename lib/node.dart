@@ -549,6 +549,10 @@ class Node {
     return color;
   }
 
+  int getColorInt() {
+    return color != null ? int.parse(color, radix: 16) : 0;
+  }
+
   void setColor(String color) {
     this.color = color;
   }
@@ -607,7 +611,8 @@ class Node {
 
   double getHeight() {
     double h = this.geth();
-    double d = h + ((parent != null) ? parent.getHeight() : 0.0);
+    double d =
+        (h != null ? h : 0.0) + ((parent != null) ? parent.getHeight() : 0.0);
     //console( h + " total " + d );
     return d;
   }
