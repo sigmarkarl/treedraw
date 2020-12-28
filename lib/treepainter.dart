@@ -4,11 +4,11 @@ import 'treedraw.dart';
 import 'treeutil.dart';
 
 class TreePainter extends CustomPainter {
-  TreeDraw treeDraw = TreeDraw();
-  TreeUtil treeUtil = TreeUtil();
+  TreeDraw treeDraw;
   String tree;
 
-  TreePainter(String tree) {
+  TreePainter(TreeDraw treeDraw, String tree) {
+    this.treeDraw = treeDraw;
     this.tree = tree;
   }
 

@@ -234,7 +234,9 @@ class TreeDraw {
         double horn = atan2(y1 - y0, x1 - x0);
 
         TextSpan textSpan = TextSpan(text: name);
-        TextPainter textPainter = TextPainter(text: textSpan);
+        TextPainter textPainter =
+            TextPainter(text: textSpan, textDirection: TextDirection.ltr);
+        textPainter.layout();
         double strlen = textPainter.width;
         //TextMetrics tm = ctx.measureText( name );
         //double strlen = tm.getWidth();
@@ -387,9 +389,9 @@ class TreeDraw {
         double xoffset = 5.0 - lbounds[0] - bounds[0] * xscale;
         double yoffset = 5.0 - lbounds[1] - bounds[1] * xscale;
 
-        int hval = ((bounds[3] - bounds[1]) * xscale +
-            (lbounds[3] - lbounds[1]) +
-            10) as int;
+        int hval =
+            ((bounds[3] - bounds[1]) * xscale + (lbounds[3] - lbounds[1]) + 10)
+                .toInt();
         //canvas.setSize((ww-10)+"px", hval+"px");
         //canvas.setCoordinateSpaceWidth( ww-10 );
         //canvas.setCoordinateSpaceHeight( hval );
@@ -422,9 +424,9 @@ class TreeDraw {
 
       String treelabel = treeutil.getTreeLabel();
 
-      int hsize = hchunk * leaves as int;
-      if (treelabel != null) hsize += 2 * hchunk as int;
-      if (showscale) hsize += 2 * hchunk as int;
+      int hsize = (hchunk * leaves).toInt();
+      if (treelabel != null) hsize += (2 * hchunk).toInt();
+      if (showscale) hsize += (2 * hchunk).toInt();
       /*if( circular ) {
 				canvas.setSize((ww-10)+"px", (ww-10)+"px");
 				canvas.setCoordinateSpaceWidth( ww-10 );
@@ -474,7 +476,8 @@ class TreeDraw {
       if (treelabel != null) {
         //ctx.setFillStyle("#000000");
         TextSpan textSpan = TextSpan(text: treelabel);
-        TextPainter textPainter = TextPainter(text: textSpan);
+        TextPainter textPainter =
+            TextPainter(text: textSpan, textDirection: TextDirection.ltr);
         textPainter.layout();
         textPainter.paint(canvas, Offset(10, hchunk + 2));
         //ctx.fillText( treelabel, 10, hchunk+2 );
@@ -809,7 +812,9 @@ class TreeDraw {
           if (!vertical) {
             for (String str in split) {
               TextSpan textSpan = TextSpan(text: str);
-              TextPainter textPainter = TextPainter(text: textSpan);
+              TextPainter textPainter =
+                  TextPainter(text: textSpan, textDirection: TextDirection.ltr);
+              textPainter.layout();
               double strw = textPainter.width;
               //mstrw = max( mstrw, strw );
               /*if( resnode.getColor() != null ) {
@@ -1036,7 +1041,7 @@ class TreeDraw {
                     TextSpan textSpan = TextSpan(text: substr);
                     textPainter.text = textSpan;
                     textPainter.layout();
-                    ly += nnstrh / 2.0;
+                    ly -= nnstrh / 2.0;
                     if (!rightalign) {
                       textPainter.paint(g2, Offset(lx, ly));
                     } else {
@@ -1080,7 +1085,8 @@ class TreeDraw {
                     paint.style = PaintingStyle.fill;
 
                     TextSpan textSpan = TextSpan(text: substr);
-                    TextPainter textPainter = TextPainter(text: textSpan);
+                    TextPainter textPainter = TextPainter(
+                        text: textSpan, textDirection: TextDirection.ltr);
                     textPainter.layout();
                     double strw = textPainter.width;
                     if (a > pi / 2.0 && a < 3.0 * pi / 2.0) {
@@ -1247,12 +1253,17 @@ class TreeDraw {
                           paint);
                     }
 
-                    ly += nnstrh / 2.0;
+                    ly -= nnstrh / 2.0;
                     if (!rightalign) {
+                      TextSpan textSpan = TextSpan(text: substr);
+                      TextPainter textPainter = TextPainter(
+                          text: textSpan, textDirection: TextDirection.ltr);
+                      textPainter.layout();
                       textPainter.paint(g2, Offset(lx, ly));
                     } else {
                       TextSpan textSpan = TextSpan(text: substr);
-                      TextPainter textPainter = TextPainter(text: textSpan);
+                      TextPainter textPainter = TextPainter(
+                          text: textSpan, textDirection: TextDirection.ltr);
                       textPainter.layout();
                       double strw = textPainter.width;
                       textPainter.paint(g2, Offset(w - addon - strw, ly));
@@ -1419,7 +1430,9 @@ class TreeDraw {
               }
             } else {
               TextSpan span = TextSpan();
-              TextPainter textPainter = TextPainter(text: span);
+              TextPainter textPainter =
+                  TextPainter(text: span, textDirection: TextDirection.ltr);
+              textPainter.layout();
               Offset offset = Offset(w - addon + 10, y + realny + nstrh / 2.3);
               textPainter.paint(g2, offset);
               //g2.fillText(use, w-addon+10, y+realny+nstrh/2.3 );
@@ -1589,6 +1602,7 @@ class TreeDraw {
 
     TextSpan textSpan = TextSpan(text: fstr);
     TextPainter textPainter = TextPainter(text: textSpan);
+    textPainter.layout();
     double fstrw = textPainter.width;
     double start = 0.0;
 
@@ -2150,7 +2164,9 @@ class TreeDraw {
           double a1 = (2.0 * pi * (y + starty)) / h;
           double a2 = (2.0 * pi * (yfloor)) / h;
 
-          // hey path.arc( w/2.0, w/2.0, cx/2.0, a1, a2, a1 > a2 );
+          Rect rect = Rect.fromLTWH((w - cx) / 2.0, (w - cx) / 2.0, cx, cx);
+          path.arcTo(rect, a1, a2 - a1, true);
+          //path.arc(w / 2.0, w / 2.0, cx / 2.0, a1, a2, a1 > a2);
 
           /*if( a1 > a2 ) {
 						g2.moveTo( (w+startx*circularScale*cos(a2))/2.0, (w+startx*circularScale*sin(a2))/2.0 );
@@ -2232,6 +2248,7 @@ class TreeDraw {
       if (name != null && nl.length > 0) {
         TextSpan textSpan = TextSpan(text: name);
         TextPainter textPainter = TextPainter(text: textSpan);
+        textPainter.layout();
         ret = textPainter.width;
       }
 

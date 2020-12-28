@@ -49,10 +49,10 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  TreeDraw treeDraw = TreeDraw();
   String tree =
       "(MT.ruberDSM1279:0.14903,MT.silvanusDSM9946:0.15015,(T.filiformis:0.10766,(T.oshimai:0.08602,(((T.brockianus:0.03466,<i>T.eggertsoni</i>:0.0333):0.04428,(((((((T.scotoductus1572:0.0113,T.scotoductus2101:0.01043):0.00037,T.scotoductus2127:0.01287):0.00086,(T.scotoductusSA01:-0.00001,T.scotoductus4063:0.00001):0.01315):0.00346,T.scotoductus346:0.01502):0.00363,T.scotoductus252:0.02305):0.00366,T.antranikiani:0.02794):0.06363,T.kawarayensis:0.06805):0.00298):0.00453,((T.thermophilusHB27:0.00411,T.thermophilusHB8:0.00409):0.07548,((T.aquaticus:0.07363,T.islandicus:0.07487):0.00245,(T.igniterrae:0.03362):0.03362):0.00354):0.00325):0.00605):0.02099):0.08672)";
-  TreeDraw treeDraw = TreeDraw();
+  //TreeDraw treeDraw = TreeDraw();
 
   void _incrementCounter() {
     setState(() {
@@ -61,7 +61,7 @@ class _MyHomePageState extends State<MyHomePage> {
       // so that the display can reflect the updated values. If we changed
       // _counter without calling setState(), then the build method would not be
       // called again, and so nothing would appear to happen.
-      _counter++;
+      treeDraw.hchunk *= 1.25;
     });
   }
 
@@ -81,14 +81,115 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: CustomPaint(
-        painter: TreePainter(tree),
+        painter: TreePainter(treeDraw, tree),
         size: Size(1024, 1024),
+      ),
+      drawer: Drawer(
+        child: Column(
+          children: <Widget>[
+            ListTile(
+              title: const Text('Default'),
+              leading: Radio(
+                value: "Default",
+                groupValue: "TreeType",
+                onChanged: (String value) {
+                  setState(() {
+                    treeDraw.radial = false;
+                    treeDraw.circular = false;
+                  });
+                },
+              ),
+            ),
+            ListTile(
+              title: const Text('Circular'),
+              leading: Radio(
+                value: "Circular",
+                groupValue: "TreeType",
+                onChanged: (String value) {
+                  setState(() {
+                    treeDraw.radial = false;
+                    treeDraw.circular = true;
+                  });
+                },
+              ),
+            ),
+            ListTile(
+              title: const Text('Radial'),
+              leading: Radio(
+                value: "Radial",
+                groupValue: "TreeType",
+                onChanged: (String value) {
+                  setState(() {
+                    treeDraw.radial = true;
+                    treeDraw.circular = false;
+                  });
+                },
+              ),
+            ),
+            FlatButton(
+              child: Text("Circular"),
+              color: Colors.blue,
+              splashColor: Colors.blueAccent,
+              onPressed: () {
+                setState(() {
+                  treeDraw.circular = !treeDraw.circular;
+                });
+              },
+            ),
+            /*Expanded(
+              child: ListView.builder(
+                controller: _trackingScrollController,
+                // Let the ListView know how many items it needs to build.
+                itemCount: listi.length, //items.length,
+                // Provide a builder function. This is where the magic happens.
+                // Convert each item into a widget based on the type of item it is.
+                itemBuilder: (context, index) {
+                  //final item = items[index];
+
+                  return ListTile(
+                    onTap: () {
+                      setState(() {
+                        listi[index].selected = !listi[index].selected;
+                        updateVisibility();
+                        //log( paints[index].selected.toString());
+                      });
+                    },
+                    title:
+                        Text(listi[index].country), //item.buildTitle(context),
+                    subtitle:
+                        Text(listi[index].id), //item.buildSubtitle(context),
+                    selected: listi[index].selected,
+                    trailing: listi[index].selected
+                        ? Icon(Icons.check_box)
+                        : Icon(Icons.check_box_outline_blank),
+                  );
+                },
+              ),
+            ),*/
+            TextField(
+              onChanged: (val) {
+                setState(() {
+                  //listi = viewlist.where((element) => element.country.contains(val)).toList();
+                });
+              },
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Filter',
+              ),
+            ),
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _incrementCounter,
         tooltip: 'Increment',
         child: Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      ),
+      /*floatingActionButton: FloatingActionButton(
+        onPressed: _decrementCounter,
+        tooltip: 'Decrement',
+        child: Icon(Icons.remove),
+      ), // This trailing comma makes auto-formatting nicer for build methods.*/
     );
   }
 }
