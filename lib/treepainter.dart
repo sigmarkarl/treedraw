@@ -5,16 +5,14 @@ import 'treeutil.dart';
 
 class TreePainter extends CustomPainter {
   TreeDraw treeDraw;
-  String tree;
 
-  TreePainter(TreeDraw treeDraw, String tree) {
+  TreePainter(TreeDraw treeDraw) {
     this.treeDraw = treeDraw;
-    this.tree = tree;
   }
 
   @override
   void paint(Canvas canvas, Size size) {
-    treeDraw.handleText(canvas, size, tree);
+    treeDraw.handleTree(canvas, size);
     //treeDraw.drawTree(canvas, size, treeUtil);
     /*var paint = Paint()
       ..style = PaintingStyle.fill
@@ -24,5 +22,5 @@ class TreePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(CustomPainter oldDelegate) => false;
+  bool shouldRepaint(CustomPainter oldDelegate) => true;
 }

@@ -27,8 +27,40 @@ class TreeDraw {
   bool circular = false;
   bool radial = false;
 
+  TreeDraw.withTreeUtil(TreeUtil treeUtil) {
+    this.treeutil = treeUtil;
+  }
+
   double log10(double x) {
     return log(x) / log(10);
+  }
+
+  Node findSelectedNode(Node node, double x, double y) {
+    Node ret = null;
+    if (node != null) {
+      if (((node.getCanvasX() - x).abs() < 5 &&
+          (node.getCanvasY() - y).abs() < 5)) {
+        ret = node;
+      } else {
+        for (Node n in node.getNodes()) {
+          Node res = findSelectedNode(n, x, y);
+          if (res != null) ret = res;
+        }
+      }
+    }
+    debugPrint(
+        "meme " + x.toString() + "  " + y.toString() + " " + ret.toString());
+    return ret;
+  }
+
+  void selectRecursive(Node node, bool select) {
+    if (node != null) {
+      node.setSelected(select);
+      if (node.getNodes() != null)
+        for (Node n in node.getNodes()) {
+          selectRecursive(n, select);
+        }
+    }
   }
 
   int count = 0;
@@ -226,6 +258,7 @@ class TreeDraw {
       bool it = name.contains("<i>");
       name = name.replaceAll("<i>", "").replaceAll("</i>", "");
 
+      bool bold = node.isSelected();
       /* mumu String fontstr = (node.isSelected() ? "bold" : "")+(it ? " italic " : " ")+(fontscale*log(hchunk) as int).toString()+"px sans-serif";
 			if( !fontstr.equals(ctx.getFont()) ) ctx.setFont( fontstr );*/
 
@@ -233,7 +266,11 @@ class TreeDraw {
         //ctx.setFillStyle("#000000");
         double horn = atan2(y1 - y0, x1 - x0);
 
-        TextSpan textSpan = TextSpan(text: name);
+        TextSpan textSpan = TextSpan(
+            text: name,
+            style: TextStyle(
+                color: Colors.black,
+                fontWeight: bold ? FontWeight.bold : FontWeight.normal));
         TextPainter textPainter =
             TextPainter(text: textSpan, textDirection: TextDirection.ltr);
         textPainter.layout();
@@ -360,7 +397,7 @@ class TreeDraw {
   double fontscale = 5.0;
   double hchunk = 10.0;
   void drawTree(Canvas canvas, Size size, TreeUtil treeutil) {
-    int ww = size.width as int; //getClientWidth();
+    int ww = size.width.toInt(); //getClientWidth();
     if (radial) {
       if (treeutil != null) {
         Node root = treeutil.getNode();
@@ -469,13 +506,15 @@ class TreeDraw {
       paint.color = Color(0xffffffff);
       Rect rect = Rect.fromLTWH(0.0, 0.0, size.width, size.height);
       canvas.drawRect(rect, paint);
+
       /* mumu if( hchunk != 10.0 ) {
 				String fontstr = ((fontscale*log(hchunk) as int).toString()+"px sans-serif";
 				if( !fontstr.equals(ctx.getFont()) ) ctx.setFont( fontstr );
 			}*/
       if (treelabel != null) {
         //ctx.setFillStyle("#000000");
-        TextSpan textSpan = TextSpan(text: treelabel);
+        TextSpan textSpan =
+            TextSpan(text: treelabel, style: TextStyle(color: Colors.black));
         TextPainter textPainter =
             TextPainter(text: textSpan, textDirection: TextDirection.ltr);
         textPainter.layout();
@@ -495,7 +534,8 @@ class TreeDraw {
         String name = node.getName();
         //if( node.getMeta() != null ) name += " ("+node.getMeta()+")";
 
-        TextSpan textSpan = TextSpan(text: name);
+        TextSpan textSpan =
+            TextSpan(text: name, style: TextStyle(color: Colors.black));
         TextPainter textPainter =
             TextPainter(text: textSpan, textDirection: TextDirection.ltr);
         textPainter.layout();
@@ -587,7 +627,8 @@ class TreeDraw {
           canvas.drawPath(path, paint);
 
           String htext = nh.toString();
-          TextSpan textSpan = TextSpan(text: htext);
+          TextSpan textSpan =
+              TextSpan(text: htext, style: TextStyle(color: Colors.black));
           TextPainter textPainter =
               TextPainter(text: textSpan, textDirection: TextDirection.ltr);
           textPainter.layout();
@@ -806,12 +847,17 @@ class TreeDraw {
           //double fontscale = resnode.getFontSize();
           //if( fontscale != -1.0 ) strh *= fontscale;
 
+          bool bold = resnode.isSelected();
           /* mumu String fontstr = (resnode.isSelected() ? "bold " : " ")+nstrh.toString()+"px sans-serif";
 					if( !fontstr.equals(g2.getFont()) ) g2.setFont( fontstr ); */
 
           if (!vertical) {
             for (String str in split) {
-              TextSpan textSpan = TextSpan(text: str);
+              TextSpan textSpan = TextSpan(
+                  text: str,
+                  style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: bold ? FontWeight.bold : FontWeight.normal));
               TextPainter textPainter =
                   TextPainter(text: textSpan, textDirection: TextDirection.ltr);
               textPainter.layout();
@@ -859,7 +905,12 @@ class TreeDraw {
                 /* mumu fontstr = (resnode.isSelected() ? "bold" : "")+(it ? " italic " : " ")+nnstrh.toString()+"px sans-serif";
 								if( !fontstr.equals(g2.getFont()) ) g2.setFont( fontstr );*/
 
-                TextSpan textSpan = TextSpan(text: maxstr);
+                TextSpan textSpan = TextSpan(
+                    text: maxstr,
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontWeight:
+                            bold ? FontWeight.bold : FontWeight.normal));
                 TextPainter textPainter = TextPainter(
                     text: textSpan, textDirection: TextDirection.ltr);
                 textPainter.layout();
@@ -880,7 +931,12 @@ class TreeDraw {
                     double cx = (w + val * circularScale * cos(a)) / 2.0;
                     double cy = (w + val * circularScale * sin(a)) / 2.0;
 
-                    TextSpan textSpan = TextSpan(text: substr);
+                    TextSpan textSpan = TextSpan(
+                        text: substr,
+                        style: TextStyle(
+                            color: Colors.black,
+                            fontWeight:
+                                bold ? FontWeight.bold : FontWeight.normal));
                     textPainter.text = textSpan;
                     textPainter.layout();
                     double strw = textPainter.width;
@@ -917,7 +973,13 @@ class TreeDraw {
                           cy = (w + val * circularScale * sin(a)) / 2.0;
 
                           String sstr = infoList[i];
-                          TextSpan textSpan = TextSpan(text: sstr);
+                          TextSpan textSpan = TextSpan(
+                              text: sstr,
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: bold
+                                      ? FontWeight.bold
+                                      : FontWeight.normal));
                           textPainter.text = textSpan;
                           textPainter.layout();
                           strw = textPainter.width;
@@ -980,7 +1042,13 @@ class TreeDraw {
                           cy = (w + val * circularScale * sin(a)) / 2.0;
 
                           String sstr = infoList[i];
-                          TextSpan subSpan = TextSpan(text: sstr);
+                          TextSpan subSpan = TextSpan(
+                              text: sstr,
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: bold
+                                      ? FontWeight.bold
+                                      : FontWeight.normal));
                           textPainter.text = subSpan;
                           textPainter.layout();
                           strw = textPainter.width;
@@ -1021,7 +1089,12 @@ class TreeDraw {
                     //g2.fillText(substr, (w+lx*0.8*cos( a ))/2.0, (w+lx*0.8*sin( a ))/2.0 );
                   } else {
                     if (!showbubble && resnode.getColor() != null) {
-                      TextSpan subSpan = TextSpan(text: str);
+                      TextSpan subSpan = TextSpan(
+                          text: str,
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontWeight:
+                                  bold ? FontWeight.bold : FontWeight.normal));
                       textPainter.text = subSpan;
                       textPainter.layout();
                       double strw = textPainter.width;
@@ -1038,7 +1111,12 @@ class TreeDraw {
                           paint);
                     }
 
-                    TextSpan textSpan = TextSpan(text: substr);
+                    TextSpan textSpan = TextSpan(
+                        text: substr,
+                        style: TextStyle(
+                            color: Colors.black,
+                            fontWeight:
+                                bold ? FontWeight.bold : FontWeight.normal));
                     textPainter.text = textSpan;
                     textPainter.layout();
                     ly -= nnstrh / 2.0;
@@ -1049,7 +1127,12 @@ class TreeDraw {
                       textPainter.paint(g2, Offset(w - addon - strw, ly));
                     }
                   }
-                  TextSpan textSpan = TextSpan(text: substr);
+                  TextSpan textSpan = TextSpan(
+                      text: substr,
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontWeight:
+                              bold ? FontWeight.bold : FontWeight.normal));
                   textPainter.text = textSpan;
                   textPainter.layout();
                   pos += textPainter.width;
@@ -1084,7 +1167,12 @@ class TreeDraw {
                     Paint paint = Paint();
                     paint.style = PaintingStyle.fill;
 
-                    TextSpan textSpan = TextSpan(text: substr);
+                    TextSpan textSpan = TextSpan(
+                        text: substr,
+                        style: TextStyle(
+                            color: Colors.black,
+                            fontWeight:
+                                bold ? FontWeight.bold : FontWeight.normal));
                     TextPainter textPainter = TextPainter(
                         text: textSpan, textDirection: TextDirection.ltr);
                     textPainter.layout();
@@ -1118,7 +1206,13 @@ class TreeDraw {
                           cy = (w + val * circularScale * sin(a)) / 2.0;
 
                           String sstr = infoList[i];
-                          TextSpan subSpan = TextSpan(text: sstr);
+                          TextSpan subSpan = TextSpan(
+                              text: sstr,
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: bold
+                                      ? FontWeight.bold
+                                      : FontWeight.normal));
                           textPainter.text = subSpan;
                           textPainter.layout();
                           strw = textPainter.width;
@@ -1188,7 +1282,13 @@ class TreeDraw {
                           cy = (w + val * circularScale * sin(a)) / 2.0;
 
                           String sstr = infoList[i];
-                          TextSpan subSpan = TextSpan(text: sstr);
+                          TextSpan subSpan = TextSpan(
+                              text: sstr,
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: bold
+                                      ? FontWeight.bold
+                                      : FontWeight.normal));
                           textPainter.text = subSpan;
                           textPainter.layout();
                           strw = textPainter.width;
@@ -1235,7 +1335,12 @@ class TreeDraw {
                     //g2.fillText(substr, (w+lx*0.8*cos( a ))/2.0, (w+lx*0.8*sin( a ))/2.0 );
                   } else {
                     if (!showbubble && resnode.getColor() != null) {
-                      TextSpan textSpan = TextSpan(text: str);
+                      TextSpan textSpan = TextSpan(
+                          text: str,
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontWeight:
+                                  bold ? FontWeight.bold : FontWeight.normal));
                       TextPainter textPainter = TextPainter(
                           text: textSpan, textDirection: TextDirection.ltr);
                       textPainter.layout();
@@ -1255,13 +1360,29 @@ class TreeDraw {
 
                     ly -= nnstrh / 2.0;
                     if (!rightalign) {
-                      TextSpan textSpan = TextSpan(text: substr);
+                      TextSpan textSpan = TextSpan(
+                          text: substr,
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontWeight:
+                                  bold ? FontWeight.bold : FontWeight.normal));
                       TextPainter textPainter = TextPainter(
                           text: textSpan, textDirection: TextDirection.ltr);
                       textPainter.layout();
+                      debugPrint("heybold " +
+                          bold.toString() +
+                          " " +
+                          resnode.isSelected().toString() +
+                          " " +
+                          resnode.name);
                       textPainter.paint(g2, Offset(lx, ly));
                     } else {
-                      TextSpan textSpan = TextSpan(text: substr);
+                      TextSpan textSpan = TextSpan(
+                          text: substr,
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontWeight:
+                                  bold ? FontWeight.bold : FontWeight.normal));
                       TextPainter textPainter = TextPainter(
                           text: textSpan, textDirection: TextDirection.ltr);
                       textPainter.layout();
@@ -1290,7 +1411,8 @@ class TreeDraw {
       } else {
         bool b = use.length > 2;
 
-        TextSpan useSpan = TextSpan(text: use);
+        TextSpan useSpan =
+            TextSpan(text: use, style: TextStyle(color: Colors.black));
         TextPainter textPainter =
             TextPainter(text: useSpan, textDirection: TextDirection.ltr);
         textPainter.layout();
@@ -1302,6 +1424,7 @@ class TreeDraw {
 
         /* mumu String fontstr = (resnode.isSelected() ? "bold " : " ")+nstrh.toString()+"px sans-serif";
 				if( !fontstr.equals(g2.getFont()) ) g2.setFont( fontstr );*/
+        bool bold = resnode.isSelected();
 
         //String[] split = use.split( "_" );
         double strw = 0.0;
@@ -1600,7 +1723,8 @@ class TreeDraw {
     mysplit = newsplit;
     double a = 2.0 * pi * (yrealny) / h; // (a1+a2)/2.0;
 
-    TextSpan textSpan = TextSpan(text: fstr);
+    TextSpan textSpan =
+        TextSpan(text: fstr, style: TextStyle(color: Colors.black));
     TextPainter textPainter = TextPainter(text: textSpan);
     textPainter.layout();
     double fstrw = textPainter.width;
@@ -1663,7 +1787,8 @@ class TreeDraw {
     if (a > pi / 2.0 && a < 3.0 * pi / 2.0) {
       int k = 0;
       for (String split in mysplit) {
-        TextSpan textSpan = TextSpan(text: split);
+        TextSpan textSpan =
+            TextSpan(text: split, style: TextStyle(color: Colors.black));
         TextPainter textPainter = TextPainter(text: textSpan);
         textPainter.layout();
         double substrw = textPainter.width; //.measureText(split).getWidth();
@@ -1684,7 +1809,8 @@ class TreeDraw {
     } else {
       int k = 0;
       for (String split in mysplit) {
-        TextSpan textSpan = TextSpan(text: split);
+        TextSpan textSpan =
+            TextSpan(text: split, style: TextStyle(color: Colors.black));
         TextPainter textPainter = TextPainter(text: textSpan);
         textPainter.layout();
 
@@ -2246,7 +2372,8 @@ class TreeDraw {
     List<Node> nl = n.getNodes();
     if (nl != null) {
       if (name != null && nl.length > 0) {
-        TextSpan textSpan = TextSpan(text: name);
+        TextSpan textSpan =
+            TextSpan(text: name, style: TextStyle(color: Colors.black));
         TextPainter textPainter = TextPainter(text: textSpan);
         textPainter.layout();
         ret = textPainter.width;
@@ -2288,7 +2415,8 @@ class TreeDraw {
     for (Node node in leaves) {
       String name = node.getName();
       //if( node.getMeta() != null ) name += " ("+node.getMeta()+")";
-      TextSpan textSpan = TextSpan(text: name);
+      TextSpan textSpan =
+          TextSpan(text: name, style: TextStyle(color: Colors.black));
       TextPainter textPainter =
           TextPainter(text: textSpan, textDirection: TextDirection.ltr);
       textPainter.layout();
@@ -2316,7 +2444,8 @@ class TreeDraw {
       for (Node node in leaves) {
         String name = node.getName();
         //if( node.getMeta() != null ) name += " ("+node.getMeta()+")";
-        TextSpan textSpan = TextSpan(text: name);
+        TextSpan textSpan =
+            TextSpan(text: name, style: TextStyle(color: Colors.black));
         TextPainter textPainter =
             TextPainter(text: textSpan, textDirection: TextDirection.ltr);
         textPainter.layout();

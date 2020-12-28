@@ -30,6 +30,9 @@ class MyApp extends StatelessWidget {
   }
 }
 
+TreeUtil treeutil = TreeUtil.fromTree(
+    "(MT.ruberDSM1279:0.14903,MT.silvanusDSM9946:0.15015,(T.filiformis:0.10766,(T.oshimai:0.08602,(((T.brockianus:0.03466,<i>T.eggertsoni</i>:0.0333):0.04428,(((((((T.scotoductus1572:0.0113,T.scotoductus2101:0.01043):0.00037,T.scotoductus2127:0.01287):0.00086,(T.scotoductusSA01:-0.00001,T.scotoductus4063:0.00001):0.01315):0.00346,T.scotoductus346:0.01502):0.00363,T.scotoductus252:0.02305):0.00366,T.antranikiani:0.02794):0.06363,T.kawarayensis:0.06805):0.00298):0.00453,((T.thermophilusHB27:0.00411,T.thermophilusHB8:0.00409):0.07548,((T.aquaticus:0.07363,T.islandicus:0.07487):0.00245,(T.igniterrae:0.03362):0.03362):0.00354):0.00325):0.00605):0.02099):0.08672)");
+
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
 
@@ -49,10 +52,10 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  TreeDraw treeDraw = TreeDraw();
-  String tree =
-      "(MT.ruberDSM1279:0.14903,MT.silvanusDSM9946:0.15015,(T.filiformis:0.10766,(T.oshimai:0.08602,(((T.brockianus:0.03466,<i>T.eggertsoni</i>:0.0333):0.04428,(((((((T.scotoductus1572:0.0113,T.scotoductus2101:0.01043):0.00037,T.scotoductus2127:0.01287):0.00086,(T.scotoductusSA01:-0.00001,T.scotoductus4063:0.00001):0.01315):0.00346,T.scotoductus346:0.01502):0.00363,T.scotoductus252:0.02305):0.00366,T.antranikiani:0.02794):0.06363,T.kawarayensis:0.06805):0.00298):0.00453,((T.thermophilusHB27:0.00411,T.thermophilusHB8:0.00409):0.07548,((T.aquaticus:0.07363,T.islandicus:0.07487):0.00245,(T.igniterrae:0.03362):0.03362):0.00354):0.00325):0.00605):0.02099):0.08672)";
-  //TreeDraw treeDraw = TreeDraw();
+  //String tree =
+  //    "(MT.ruberDSM1279:0.14903,MT.silvanusDSM9946:0.15015,(T.filiformis:0.10766,(T.oshimai:0.08602,(((T.brockianus:0.03466,<i>T.eggertsoni</i>:0.0333):0.04428,(((((((T.scotoductus1572:0.0113,T.scotoductus2101:0.01043):0.00037,T.scotoductus2127:0.01287):0.00086,(T.scotoductusSA01:-0.00001,T.scotoductus4063:0.00001):0.01315):0.00346,T.scotoductus346:0.01502):0.00363,T.scotoductus252:0.02305):0.00366,T.antranikiani:0.02794):0.06363,T.kawarayensis:0.06805):0.00298):0.00453,((T.thermophilusHB27:0.00411,T.thermophilusHB8:0.00409):0.07548,((T.aquaticus:0.07363,T.islandicus:0.07487):0.00245,(T.igniterrae:0.03362):0.03362):0.00354):0.00325):0.00605):0.02099):0.08672)";
+  TreeDraw treeDraw = TreeDraw.withTreeUtil(treeutil);
+  //treeDraw.setTreeUtil(treeutil, str);
 
   void _incrementCounter() {
     setState(() {
@@ -62,6 +65,12 @@ class _MyHomePageState extends State<MyHomePage> {
       // _counter without calling setState(), then the build method would not be
       // called again, and so nothing would appear to happen.
       treeDraw.hchunk *= 1.25;
+    });
+  }
+
+  void _decrementCounter() {
+    setState(() {
+      treeDraw.hchunk *= 0.8;
     });
   }
 
@@ -80,9 +89,49 @@ class _MyHomePageState extends State<MyHomePage> {
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
-      body: CustomPaint(
-        painter: TreePainter(treeDraw, tree),
-        size: Size(1024, 1024),
+      body: GestureDetector(
+        /*onHorizontalDragStart: (detail) {
+          _x = detail.globalPosition.dx;
+        },
+        onVerticalDragStart: (detail) {
+          _y = detail.globalPosition.dy;
+        },
+        onHorizontalDragUpdate: (detail) {
+          setState(() {
+            _len -= detail.globalPosition.dx - _x;
+            _x = detail.globalPosition.dx;
+          });
+        },
+        onVerticalDragUpdate: (detail) {
+          setState(() {
+            _len += detail.globalPosition.dy - _y;
+            _y = detail.globalPosition.dy;
+          });
+        },*/
+        onTapDown: (details) {
+          setState(() {
+            var x = details.localPosition.dx;
+            var y = details.localPosition.dy;
+            var selectedNode = treeDraw.findSelectedNode(treeDraw.root, x, y);
+            if (selectedNode != null) {
+              treeDraw.selectRecursive(
+                  selectedNode, !selectedNode.isSelected());
+            }
+          });
+        },
+        /*onTap: () {
+          setState(() {
+            //var x = detail.globalPosition.x;
+            //var selectedNode = findSelectedNode(root, x, y);
+            //if (selectedNode != null) {
+            //  selectRecursive(selectedNode, !selectedNode.isSelected());
+            //}
+          });
+        },*/
+        child: CustomPaint(
+          painter: TreePainter(treeDraw),
+          size: Size(1024, 1024),
+        ),
       ),
       drawer: Drawer(
         child: Column(
@@ -96,6 +145,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   setState(() {
                     treeDraw.radial = false;
                     treeDraw.circular = false;
+                    Navigator.pop(context);
                   });
                 },
               ),
@@ -109,6 +159,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   setState(() {
                     treeDraw.radial = false;
                     treeDraw.circular = true;
+                    Navigator.pop(context);
                   });
                 },
               ),
@@ -122,6 +173,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   setState(() {
                     treeDraw.radial = true;
                     treeDraw.circular = false;
+                    Navigator.pop(context);
                   });
                 },
               ),
@@ -180,11 +232,30 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            FloatingActionButton(
+              onPressed: _incrementCounter,
+              tooltip: 'Increment',
+              child: Icon(Icons.add),
+            ),
+            FloatingActionButton(
+              onPressed: _decrementCounter,
+              tooltip: 'Decrement',
+              child: Icon(Icons.remove),
+            ),
+          ],
+        ),
+      ),
+      /*FloatingActionButton(
         onPressed: _incrementCounter,
         tooltip: 'Increment',
         child: Icon(Icons.add),
-      ),
+      ),*/
       /*floatingActionButton: FloatingActionButton(
         onPressed: _decrementCounter,
         tooltip: 'Decrement',

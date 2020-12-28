@@ -1,8 +1,9 @@
 import 'dart:collection';
 import 'dart:core';
-import 'dart:html';
+//import 'dart:html';
 import 'dart:math';
 import 'nodeset.dart';
+import 'package:flutter/material.dart';
 
 class Node {
   String name;
@@ -170,6 +171,7 @@ class Node {
   }
 
   void setSelected(bool selected) {
+    debugPrint("selecting " + selected.toString() + " " + name);
     this.selected = selected;
   }
 

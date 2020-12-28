@@ -7,6 +7,10 @@ class TreeUtil {
   Node currentNode = null;
   String treelabel = null;
 
+  TreeUtil.fromTree(String tree) {
+    init(tree, false, null, null, false, null, null, false);
+  }
+
   Node removeRoot(Node n) {
     Node ret;
     List<Node> ln = n.getNodes();
