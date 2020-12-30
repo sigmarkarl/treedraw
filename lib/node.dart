@@ -171,7 +171,6 @@ class Node {
   }
 
   void setSelected(bool selected) {
-    debugPrint("selecting " + selected.toString() + " " + name);
     this.selected = selected;
   }
 

@@ -270,7 +270,8 @@ class TreeDraw {
             text: name,
             style: TextStyle(
                 color: Colors.black,
-                fontWeight: bold ? FontWeight.bold : FontWeight.normal));
+                fontWeight: bold ? FontWeight.bold : FontWeight.normal,
+                fontStyle: it ? FontStyle.italic : FontStyle.normal));
         TextPainter textPainter =
             TextPainter(text: textSpan, textDirection: TextDirection.ltr);
         textPainter.layout();
@@ -847,6 +848,7 @@ class TreeDraw {
           //double fontscale = resnode.getFontSize();
           //if( fontscale != -1.0 ) strh *= fontscale;
 
+          bool it = name.contains("<i>");
           bool bold = resnode.isSelected();
           /* mumu String fontstr = (resnode.isSelected() ? "bold " : " ")+nstrh.toString()+"px sans-serif";
 					if( !fontstr.equals(g2.getFont()) ) g2.setFont( fontstr ); */
@@ -857,7 +859,8 @@ class TreeDraw {
                   text: str,
                   style: TextStyle(
                       color: Colors.black,
-                      fontWeight: bold ? FontWeight.bold : FontWeight.normal));
+                      fontWeight: bold ? FontWeight.bold : FontWeight.normal,
+                      fontStyle: it ? FontStyle.italic : FontStyle.normal));
               TextPainter textPainter =
                   TextPainter(text: textSpan, textDirection: TextDirection.ltr);
               textPainter.layout();
@@ -909,8 +912,8 @@ class TreeDraw {
                     text: maxstr,
                     style: TextStyle(
                         color: Colors.black,
-                        fontWeight:
-                            bold ? FontWeight.bold : FontWeight.normal));
+                        fontWeight: bold ? FontWeight.bold : FontWeight.normal,
+                        fontStyle: it ? FontStyle.italic : FontStyle.normal));
                 TextPainter textPainter = TextPainter(
                     text: textSpan, textDirection: TextDirection.ltr);
                 textPainter.layout();
@@ -936,7 +939,9 @@ class TreeDraw {
                         style: TextStyle(
                             color: Colors.black,
                             fontWeight:
-                                bold ? FontWeight.bold : FontWeight.normal));
+                                bold ? FontWeight.bold : FontWeight.normal,
+                            fontStyle:
+                                it ? FontStyle.italic : FontStyle.normal));
                     textPainter.text = textSpan;
                     textPainter.layout();
                     double strw = textPainter.width;
@@ -979,7 +984,10 @@ class TreeDraw {
                                   color: Colors.black,
                                   fontWeight: bold
                                       ? FontWeight.bold
-                                      : FontWeight.normal));
+                                      : FontWeight.normal,
+                                  fontStyle: it
+                                      ? FontStyle.italic
+                                      : FontStyle.normal));
                           textPainter.text = textSpan;
                           textPainter.layout();
                           strw = textPainter.width;
@@ -1048,7 +1056,10 @@ class TreeDraw {
                                   color: Colors.black,
                                   fontWeight: bold
                                       ? FontWeight.bold
-                                      : FontWeight.normal));
+                                      : FontWeight.normal,
+                                  fontStyle: it
+                                      ? FontStyle.italic
+                                      : FontStyle.normal));
                           textPainter.text = subSpan;
                           textPainter.layout();
                           strw = textPainter.width;
@@ -1094,7 +1105,9 @@ class TreeDraw {
                           style: TextStyle(
                               color: Colors.black,
                               fontWeight:
-                                  bold ? FontWeight.bold : FontWeight.normal));
+                                  bold ? FontWeight.bold : FontWeight.normal,
+                              fontStyle:
+                                  it ? FontStyle.italic : FontStyle.normal));
                       textPainter.text = subSpan;
                       textPainter.layout();
                       double strw = textPainter.width;
@@ -1116,7 +1129,9 @@ class TreeDraw {
                         style: TextStyle(
                             color: Colors.black,
                             fontWeight:
-                                bold ? FontWeight.bold : FontWeight.normal));
+                                bold ? FontWeight.bold : FontWeight.normal,
+                            fontStyle:
+                                it ? FontStyle.italic : FontStyle.normal));
                     textPainter.text = textSpan;
                     textPainter.layout();
                     ly -= nnstrh / 2.0;
@@ -1132,7 +1147,8 @@ class TreeDraw {
                       style: TextStyle(
                           color: Colors.black,
                           fontWeight:
-                              bold ? FontWeight.bold : FontWeight.normal));
+                              bold ? FontWeight.bold : FontWeight.normal,
+                          fontStyle: it ? FontStyle.italic : FontStyle.normal));
                   textPainter.text = textSpan;
                   textPainter.layout();
                   pos += textPainter.width;
@@ -1172,7 +1188,9 @@ class TreeDraw {
                         style: TextStyle(
                             color: Colors.black,
                             fontWeight:
-                                bold ? FontWeight.bold : FontWeight.normal));
+                                bold ? FontWeight.bold : FontWeight.normal,
+                            fontStyle:
+                                it ? FontStyle.italic : FontStyle.normal));
                     TextPainter textPainter = TextPainter(
                         text: textSpan, textDirection: TextDirection.ltr);
                     textPainter.layout();
@@ -1212,7 +1230,10 @@ class TreeDraw {
                                   color: Colors.black,
                                   fontWeight: bold
                                       ? FontWeight.bold
-                                      : FontWeight.normal));
+                                      : FontWeight.normal,
+                                  fontStyle: it
+                                      ? FontStyle.italic
+                                      : FontStyle.normal));
                           textPainter.text = subSpan;
                           textPainter.layout();
                           strw = textPainter.width;
@@ -1288,7 +1309,10 @@ class TreeDraw {
                                   color: Colors.black,
                                   fontWeight: bold
                                       ? FontWeight.bold
-                                      : FontWeight.normal));
+                                      : FontWeight.normal,
+                                  fontStyle: it
+                                      ? FontStyle.italic
+                                      : FontStyle.normal));
                           textPainter.text = subSpan;
                           textPainter.layout();
                           strw = textPainter.width;
@@ -1340,7 +1364,9 @@ class TreeDraw {
                           style: TextStyle(
                               color: Colors.black,
                               fontWeight:
-                                  bold ? FontWeight.bold : FontWeight.normal));
+                                  bold ? FontWeight.bold : FontWeight.normal,
+                              fontStyle:
+                                  it ? FontStyle.italic : FontStyle.normal));
                       TextPainter textPainter = TextPainter(
                           text: textSpan, textDirection: TextDirection.ltr);
                       textPainter.layout();
@@ -1365,16 +1391,12 @@ class TreeDraw {
                           style: TextStyle(
                               color: Colors.black,
                               fontWeight:
-                                  bold ? FontWeight.bold : FontWeight.normal));
+                                  bold ? FontWeight.bold : FontWeight.normal,
+                              fontStyle:
+                                  it ? FontStyle.italic : FontStyle.normal));
                       TextPainter textPainter = TextPainter(
                           text: textSpan, textDirection: TextDirection.ltr);
                       textPainter.layout();
-                      debugPrint("heybold " +
-                          bold.toString() +
-                          " " +
-                          resnode.isSelected().toString() +
-                          " " +
-                          resnode.name);
                       textPainter.paint(g2, Offset(lx, ly));
                     } else {
                       TextSpan textSpan = TextSpan(
@@ -1382,7 +1404,9 @@ class TreeDraw {
                           style: TextStyle(
                               color: Colors.black,
                               fontWeight:
-                                  bold ? FontWeight.bold : FontWeight.normal));
+                                  bold ? FontWeight.bold : FontWeight.normal,
+                              fontStyle:
+                                  it ? FontStyle.italic : FontStyle.normal));
                       TextPainter textPainter = TextPainter(
                           text: textSpan, textDirection: TextDirection.ltr);
                       textPainter.layout();
@@ -2193,7 +2217,15 @@ class TreeDraw {
           else
             nx = 30.0 + (dw * plevels);
         } else {
-          nx = /*h/25+*/ startx + (w * resnode.geth()) / (maxheight * 1.0);
+          double h = resnode.geth();
+
+          debugPrint("h " + (h == null ? "null" : h.toString()));
+          debugPrint("startx " + (startx == null ? "null" : startx.toString()));
+          debugPrint("w " + (w == null ? "null" : w.toString()));
+          debugPrint("maxheight " +
+              (maxheight == null ? "null" : maxheight.toString()));
+
+          nx = /*h/25+*/ startx + (w * h) / (maxheight * 1.0);
           //ny = 100+(int)(/*starty+*/(h*(node.h+resnode.h-minh))/((maxh-minh)*3.2));
         }
 

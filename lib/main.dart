@@ -3,6 +3,9 @@ import 'package:treedraw/treeutil.dart';
 import 'treepainter.dart';
 import 'treedraw.dart';
 
+import 'dart:async';
+import 'dart:html';
+
 void main() {
   runApp(MyApp());
 }
@@ -51,6 +54,11 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
+enum _DragState {
+  dragging,
+  notDragging,
+}
+
 class _MyHomePageState extends State<MyHomePage> {
   //String tree =
   //    "(MT.ruberDSM1279:0.14903,MT.silvanusDSM9946:0.15015,(T.filiformis:0.10766,(T.oshimai:0.08602,(((T.brockianus:0.03466,<i>T.eggertsoni</i>:0.0333):0.04428,(((((((T.scotoductus1572:0.0113,T.scotoductus2101:0.01043):0.00037,T.scotoductus2127:0.01287):0.00086,(T.scotoductusSA01:-0.00001,T.scotoductus4063:0.00001):0.01315):0.00346,T.scotoductus346:0.01502):0.00363,T.scotoductus252:0.02305):0.00366,T.antranikiani:0.02794):0.06363,T.kawarayensis:0.06805):0.00298):0.00453,((T.thermophilusHB27:0.00411,T.thermophilusHB8:0.00409):0.07548,((T.aquaticus:0.07363,T.islandicus:0.07487):0.00245,(T.igniterrae:0.03362):0.03362):0.00354):0.00325):0.00605):0.02099):0.08672)";
@@ -72,6 +80,62 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       treeDraw.hchunk *= 0.8;
     });
+  }
+
+  StreamSubscription<MouseEvent> _onDragOverSubscription;
+  StreamSubscription<MouseEvent> _onDropSubscription;
+
+  final StreamController<Point<double>> _pointStreamController =
+      new StreamController<Point<double>>.broadcast();
+  final StreamController<_DragState> _dragStateStreamController =
+      new StreamController<_DragState>.broadcast();
+
+  @override
+  void dispose() {
+    this._onDropSubscription.cancel();
+    this._onDragOverSubscription.cancel();
+    this._pointStreamController.close();
+    this._dragStateStreamController.close();
+    super.dispose();
+  }
+
+  void _onDrop(MouseEvent value) {
+    value.stopPropagation();
+    value.preventDefault();
+    _pointStreamController.sink.add(null);
+    _addTree(value.dataTransfer.getData("text"));
+  }
+
+  void _addTree(String tree) {
+    treeutil = TreeUtil.fromTree(tree);
+    treeDraw = TreeDraw.withTreeUtil(treeutil);
+    this.setState(() {
+      if (tree != null && tree.length > 1) {
+        debugPrint("test " + tree);
+      }
+      //debugPrint(tree);
+      /*this._files = this._files..addAll(newFiles);
+
+      /// TODO
+      print(this._files);*/
+    });
+  }
+
+  void _onDragOver(MouseEvent value) {
+    value.stopPropagation();
+    value.preventDefault();
+    this
+        ._pointStreamController
+        .sink
+        .add(Point<double>(value.layer.x.toDouble(), value.layer.y.toDouble()));
+    this._dragStateStreamController.sink.add(_DragState.dragging);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    this._onDropSubscription = document.body.onDrop.listen(_onDrop);
+    this._onDragOverSubscription = document.body.onDragOver.listen(_onDragOver);
   }
 
   @override
@@ -127,7 +191,21 @@ class _MyHomePageState extends State<MyHomePage> {
             //  selectRecursive(selectedNode, !selectedNode.isSelected());
             //}
           });
-        },*/
+        },
+        child: DragTarget(
+          builder: (context, List<String> candidateData, rejectedData) {
+            return CustomPaint(
+              painter: TreePainter(treeDraw),
+              size: Size(1024, 1024),
+            );
+          },
+          onWillAccept: (data) {
+            return true;
+          },
+          onAccept: (data) {
+            var k = 0;
+          },
+        ),*/
         child: CustomPaint(
           painter: TreePainter(treeDraw),
           size: Size(1024, 1024),
