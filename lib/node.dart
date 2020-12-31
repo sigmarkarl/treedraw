@@ -224,6 +224,7 @@ class Node {
   }
 
   double geth() {
+    if (h == null) return 0.0;
     return h;
   }
 

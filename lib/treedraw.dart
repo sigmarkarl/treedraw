@@ -701,7 +701,7 @@ class TreeDraw {
           }
 
           if (nleaves == 0) {
-            int v = (nodearray.length * (y + ny)) / size.height as int;
+            int v = (nodearray.length * (y + ny)) ~/ size.height;
             //console( nodearray.length + "  " + canvas.getCoordinateSpaceHeight() + "  " + v );
             if (v >= 0 && v < nodearray.length) nodearray[v] = resnode;
           }
@@ -1979,7 +1979,7 @@ class TreeDraw {
         }
 
         if (nleaves == 0) {
-          int v = ((nodearray.length * (y + ny)) / size.height) as int;
+          int v = (nodearray.length * (y + ny)) ~/ size.height;
           if (v >= 0 && v < nodearray.length) nodearray[v] = resnode;
         }
       } else {
@@ -2050,6 +2050,7 @@ class TreeDraw {
     } else
       node.setCanvasLoc(x + ret, starty);
     total = 0;
+    double cx = startx * circularScale;
     for (Node resnode in node.getNodes()) {
       int nleaves = resnode.getLeavesCount();
       int nlevels = resnode.countMaxHeight();
@@ -2071,7 +2072,7 @@ class TreeDraw {
         }
 
         if (nleaves == 0) {
-          int v = ((nodearray.length * (y + ny)) / size.height) as int;
+          int v = (nodearray.length * (y + ny)) ~/ size.height;
           if (v >= 0 && v < nodearray.length) nodearray[v] = resnode;
         }
       } else {
@@ -2092,7 +2093,10 @@ class TreeDraw {
           double a1 = (2.0 * pi * (y + ret)) / h;
           double a2 = (2.0 * pi * (yfloor)) / h;
 
-          // hey path.arc( w/2.0, w/2.0, startx*circularScale/2.0, a1, a2, a1 > a2 );
+          Rect rect = Rect.fromLTWH((w - cx) / 2.0, (w - cx) / 2.0, cx, cx);
+          path.arcTo(rect, a1, a2 - a1, true);
+
+          // hey ios path.arc( w/2.0, w/2.0, startx*circularScale/2.0, a1, a2, a1 > a2 );
 
           /*if( a1 > a2 ) {
 						g2.moveTo( (w+startx*circularScale*cos(a2))/2.0, (w+startx*circularScale*sin(a2))/2.0 );
@@ -2107,9 +2111,9 @@ class TreeDraw {
               (w + nx * circularScale * sin(a2)) / 2.0);
         } else {
           path.moveTo(startx, y + ret);
-          //path.lineTo(startx, yfloor);
-          //path.moveTo(startx, yfloor);
-          //path.lineTo(nx, yfloor);
+          path.lineTo(startx, yfloor);
+          path.moveTo(startx, yfloor);
+          path.lineTo(nx, yfloor);
         }
       } else {
         path.moveTo(x + startx, starty);
@@ -2218,12 +2222,13 @@ class TreeDraw {
             nx = 30.0 + (dw * plevels);
         } else {
           double h = resnode.geth();
+          if (h == null) h = 0.0;
 
-          debugPrint("h " + (h == null ? "null" : h.toString()));
+          /*debugPrint("h " + (h == null ? "null" : h.toString()));
           debugPrint("startx " + (startx == null ? "null" : startx.toString()));
           debugPrint("w " + (w == null ? "null" : w.toString()));
           debugPrint("maxheight " +
-              (maxheight == null ? "null" : maxheight.toString()));
+              (maxheight == null ? "null" : maxheight.toString()));*/
 
           nx = /*h/25+*/ startx + (w * h) / (maxheight * 1.0);
           //ny = 100+(int)(/*starty+*/(h*(node.h+resnode.h-minh))/((maxh-minh)*3.2));

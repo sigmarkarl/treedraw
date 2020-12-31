@@ -107,11 +107,11 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _addTree(String tree) {
-    treeutil = TreeUtil.fromTree(tree);
-    treeDraw = TreeDraw.withTreeUtil(treeutil);
     this.setState(() {
       if (tree != null && tree.length > 1) {
-        debugPrint("test " + tree);
+        treeutil.init(tree, false, null, null, false, null, null, false);
+        //treeutil = TreeUtil.fromTree(tree);
+        //treeDraw = TreeDraw.withTreeUtil(treeutil);
       }
       //debugPrint(tree);
       /*this._files = this._files..addAll(newFiles);
@@ -251,6 +251,33 @@ class _MyHomePageState extends State<MyHomePage> {
                   setState(() {
                     treeDraw.radial = true;
                     treeDraw.circular = false;
+                    Navigator.pop(context);
+                  });
+                },
+              ),
+            ),
+            Divider(),
+            ListTile(
+              title: const Text('Center'),
+              leading: Radio(
+                value: "Center",
+                groupValue: "TreeDrawStyle",
+                onChanged: (String value) {
+                  setState(() {
+                    treeDraw.center = true;
+                    Navigator.pop(context);
+                  });
+                },
+              ),
+            ),
+            ListTile(
+              title: const Text('Branch'),
+              leading: Radio(
+                value: "Branch",
+                groupValue: "TreeDrawStyle",
+                onChanged: (String value) {
+                  setState(() {
+                    treeDraw.center = false;
                     Navigator.pop(context);
                   });
                 },
