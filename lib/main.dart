@@ -1,10 +1,15 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:treedraw/treeutil.dart';
 import 'treepainter.dart';
 import 'treedraw.dart';
 
+import 'dart:ui';
 import 'dart:async';
 import 'dart:html';
+import 'dart:js' as js;
 
 void main() {
   runApp(MyApp());
@@ -57,6 +62,18 @@ class MyHomePage extends StatefulWidget {
 enum _DragState {
   dragging,
   notDragging,
+}
+
+_launchURL(String url) async {
+  if (await canLaunch(url)) {
+    await launch(url);
+  } else {
+    throw 'Could not launch $url';
+  }
+}
+
+_launchURLSimple(String url) async {
+  await launch(url);
 }
 
 class _MyHomePageState extends State<MyHomePage> {
@@ -284,12 +301,45 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
             FlatButton(
-              child: Text("Circular"),
+              child: Text("Save"),
               color: Colors.blue,
               splashColor: Colors.blueAccent,
               onPressed: () {
                 setState(() {
-                  treeDraw.circular = !treeDraw.circular;
+                  final recorder = PictureRecorder();
+                  final size = Size(1024.0, 1024.0);
+                  final canvas = new Canvas(
+                      recorder,
+                      new Rect.fromPoints(
+                          new Offset(0.0, 0.0), new Offset(1024.0, 1024.0)));
+
+                  treeDraw.handleTree(canvas, size);
+                  final picture = recorder.endRecording();
+                  final img = picture.toImage(1024, 1024);
+                  img.then((value) {
+                    value
+                        .toByteData(format: ImageByteFormat.png)
+                        .then((pngBytes) {
+                      var imgurl = Uri.dataFromBytes(
+                          pngBytes.buffer.asUint8List(),
+                          mimeType: "image/png");
+                      var imgurlstr = imgurl.toString();
+                      //_launchURLSimple(imgurl.toString());
+                      var b = Base64Encoder();
+                      String erm = b.convert(pngBytes.buffer.asUint8List());
+                      var imgurlstr2 = "data:image/png;base64," + erm;
+                      var encoded = Uri.encodeFull(imgurlstr2);
+
+                      debugPrint(encoded.compareTo(imgurlstr).toString() +
+                          " " +
+                          (encoded.length - imgurlstr.length).toString());
+
+                      _launchURLSimple(
+                          "data:text/plain;base64,SGVsbG8sIFdvcmxkIQ==");
+                    });
+                  });
+                  //js.context.callMethod('open', ['']);
+                  //treeDraw.circular = !treeDraw.circular;
                 });
               },
             ),
