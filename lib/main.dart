@@ -5,11 +5,12 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:treedraw/treeutil.dart';
 import 'treepainter.dart';
 import 'treedraw.dart';
+import 'mobileappdrop.dart' if (dart.library.js) 'webappdrop.dart';
 
 import 'dart:ui';
 import 'dart:async';
-import 'dart:html';
-import 'dart:js' as js;
+//import 'dart:html';
+//import 'dart:js' as js;
 
 void main() {
   runApp(MyApp());
@@ -59,11 +60,6 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-enum _DragState {
-  dragging,
-  notDragging,
-}
-
 _launchURL(String url) async {
   if (await canLaunch(url)) {
     await launch(url);
@@ -99,60 +95,18 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  StreamSubscription<MouseEvent> _onDragOverSubscription;
-  StreamSubscription<MouseEvent> _onDropSubscription;
-
-  final StreamController<Point<double>> _pointStreamController =
-      new StreamController<Point<double>>.broadcast();
-  final StreamController<_DragState> _dragStateStreamController =
-      new StreamController<_DragState>.broadcast();
-
-  @override
-  void dispose() {
-    this._onDropSubscription.cancel();
-    this._onDragOverSubscription.cancel();
-    this._pointStreamController.close();
-    this._dragStateStreamController.close();
-    super.dispose();
-  }
-
-  void _onDrop(MouseEvent value) {
-    value.stopPropagation();
-    value.preventDefault();
-    _pointStreamController.sink.add(null);
-    _addTree(value.dataTransfer.getData("text"));
-  }
-
-  void _addTree(String tree) {
-    this.setState(() {
-      if (tree != null && tree.length > 1) {
-        treeutil.init(tree, false, null, null, false, null, null, false);
-        //treeutil = TreeUtil.fromTree(tree);
-        //treeDraw = TreeDraw.withTreeUtil(treeutil);
-      }
-      //debugPrint(tree);
-      /*this._files = this._files..addAll(newFiles);
-
-      /// TODO
-      print(this._files);*/
-    });
-  }
-
-  void _onDragOver(MouseEvent value) {
-    value.stopPropagation();
-    value.preventDefault();
-    this
-        ._pointStreamController
-        .sink
-        .add(Point<double>(value.layer.x.toDouble(), value.layer.y.toDouble()));
-    this._dragStateStreamController.sink.add(_DragState.dragging);
-  }
+  AppDrop appDrop = getAppDrop(treeutil);
 
   @override
   void initState() {
     super.initState();
-    this._onDropSubscription = document.body.onDrop.listen(_onDrop);
-    this._onDragOverSubscription = document.body.onDragOver.listen(_onDragOver);
+    appDrop.init(this);
+  }
+
+  @override
+  void dispose() {
+    appDrop.dispose();
+    super.dispose();
   }
 
   @override
