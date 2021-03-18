@@ -143,6 +143,16 @@ class _MyHomePageState extends State<MyHomePage> {
             _y = detail.globalPosition.dy;
           });
         },*/
+        onLongPressStart: (details) {
+          setState(() {
+            var x = details.localPosition.dx;
+            var y = details.localPosition.dy;
+            var selectedNode = treeDraw.findSelectedNode(treeDraw.root, x, y);
+            if (selectedNode != null) {
+              treeDraw.reroot(selectedNode);
+            }
+          });
+        },
         onTapDown: (details) {
           setState(() {
             var x = details.localPosition.dx;

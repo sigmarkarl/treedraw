@@ -600,8 +600,10 @@ class Node {
   int countParentHeight() {
     int val = 0;
     Node parent = this.getParent();
-    while (parent != null) {
+    var prevset = {this};
+    while (parent != null && !prevset.contains(parent)) {
       val++;
+      prevset.add(parent);
       parent = parent.getParent();
     }
     return val;
@@ -611,10 +613,24 @@ class Node {
     return geth();
   }
 
-  double getHeight() {
+  double getHeightParent(Set<Node> parents) {
+    parents = Set<Node>.from(parents);
+    parents.add(this);
     double h = this.geth();
-    double d =
-        (h != null ? h : 0.0) + ((parent != null) ? parent.getHeight() : 0.0);
+    double d = (h != null ? h : 0.0) +
+        ((parent != null && !parents.contains(parent))
+            ? parent.getHeightParent(parents)
+            : 0.0);
+    debugPrint("oulu");
+    //console( h + " total " + d );
+    return d;
+  }
+
+  double getHeight() {
+    var parents = {this};
+    double h = this.geth();
+    double d = (h != null ? h : 0.0) +
+        ((parent != null) ? parent.getHeightParent(parents) : 0.0);
     //console( h + " total " + d );
     return d;
   }

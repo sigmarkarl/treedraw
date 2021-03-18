@@ -2424,10 +2424,24 @@ class TreeDraw {
     return ret;
   }
 
-  double getHeight(Node n) {
+  double getHeightParent(Node n, Set<Node> parents) {
+    parents = Set.of(parents);
+    parents.add(n);
+    var parent = n.getParent();
     double h = n.geth();
     double d = (h != null ? h : 0.0) +
-        ((n.getParent() != null) ? getHeight(n.getParent()) : 0.0);
+        ((parent != null && !parents.contains(parent))
+            ? getHeightParent(parent, parents)
+            : 0.0);
+    return d;
+  }
+
+  double getHeight(Node n) {
+    var parents = {n};
+    var parent = n.getParent();
+    double h = n.geth();
+    double d = (h != null ? h : 0.0) +
+        ((parent != null) ? getHeightParent(parent, parents) : 0.0);
     return d;
   }
 
@@ -2923,5 +2937,10 @@ class TreeDraw {
         handleTree(canvas, size);
       }
     }
+  }
+
+  void reroot(Node root) {
+    treeutil.reroot(root);
+    //handleTree(canvas, size);
   }
 }
