@@ -88,12 +88,22 @@ class _MyHomePageState extends State<MyHomePage> {
       // _counter without calling setState(), then the build method would not be
       // called again, and so nothing would appear to happen.
       treeDraw.hchunk *= 1.25;
+
+      int leaves = treeDraw.root.getLeavesCount();
+      var hsize = (treeDraw.hchunk * leaves);
+      canvasHeight = hsize;
+      //var h = treeDraw.getHeight(treeDraw.root);
+      //debugPrint("hh " + h.toString());
     });
   }
 
   void _decrementCounter() {
     setState(() {
       treeDraw.hchunk *= 0.8;
+
+      int leaves = treeDraw.root.getLeavesCount();
+      var hsize = (treeDraw.hchunk * leaves);
+      canvasHeight = hsize;
     });
   }
 
