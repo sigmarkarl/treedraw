@@ -138,70 +138,80 @@ class _MyHomePageState extends State<MyHomePage> {
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
-      body: GestureDetector(
-        /*onHorizontalDragStart: (detail) {
-          _x = detail.globalPosition.dx;
-        },
-        onVerticalDragStart: (detail) {
-          _y = detail.globalPosition.dy;
-        },
-        onHorizontalDragUpdate: (detail) {
-          setState(() {
-            _len -= detail.globalPosition.dx - _x;
+      body: SingleChildScrollView(
+        child: GestureDetector(
+          /*onHorizontalDragStart: (detail) {
             _x = detail.globalPosition.dx;
-          });
-        },
-        onVerticalDragUpdate: (detail) {
-          setState(() {
-            _len += detail.globalPosition.dy - _y;
+          },
+          onVerticalDragStart: (detail) {
             _y = detail.globalPosition.dy;
-          });
-        },*/
-        onLongPressStart: (details) {
-          setState(() {
-            var x = details.localPosition.dx;
-            var y = details.localPosition.dy;
-            var selectedNode = treeDraw.findSelectedNode(treeDraw.root, x, y);
-            if (selectedNode != null) {
-              treeDraw.reroot(selectedNode);
-            }
-          });
-        },
-        onTapDown: (details) {
-          setState(() {
-            var x = details.localPosition.dx;
-            var y = details.localPosition.dy;
-            var selectedNode = treeDraw.findSelectedNode(treeDraw.root, x, y);
-            if (selectedNode != null) {
-              treeDraw.selectRecursive(
-                  selectedNode, !selectedNode.isSelected());
-            }
-          });
-        },
-        /*onTap: () {
-          setState(() {
-            //var x = detail.globalPosition.x;
-            //var selectedNode = findSelectedNode(root, x, y);
-            //if (selectedNode != null) {
-            //  selectRecursive(selectedNode, !selectedNode.isSelected());
-            //}
-          });
-        },
-        child: DragTarget(
-          builder: (context, List<String> candidateData, rejectedData) {
-            return CustomPaint(
-              painter: TreePainter(treeDraw),
-              size: Size(1024, 1024),
-            );
           },
-          onWillAccept: (data) {
-            return true;
+          onHorizontalDragUpdate: (detail) {
+            setState(() {
+              _len -= detail.globalPosition.dx - _x;
+              _x = detail.globalPosition.dx;
+            });
           },
-          onAccept: (data) {
-            var k = 0;
+          onVerticalDragUpdate: (detail) {
+            setState(() {
+              _len += detail.globalPosition.dy - _y;
+              _y = detail.globalPosition.dy;
+            });
+          },*/
+          onDoubleTapDown: (details) {
+            setState(() {
+              var x = details.localPosition.dx;
+              var y = details.localPosition.dy;
+              var selectedNode = treeDraw.findSelectedNode(treeDraw.root, x, y);
+              if (selectedNode != null) {
+                treeDraw.setNode(selectedNode);
+              }
+            });
           },
-        ),*/
-        child: SingleChildScrollView(
+          onLongPressStart: (details) {
+            setState(() {
+              var x = details.localPosition.dx;
+              var y = details.localPosition.dy;
+              var selectedNode = treeDraw.findSelectedNode(treeDraw.root, x, y);
+              if (selectedNode != null) {
+                treeDraw.reroot(selectedNode);
+              }
+            });
+          },
+          onTapDown: (details) {
+            setState(() {
+              var x = details.localPosition.dx;
+              var y = details.localPosition.dy;
+              var selectedNode = treeDraw.findSelectedNode(treeDraw.root, x, y);
+              if (selectedNode != null) {
+                treeDraw.selectRecursive(
+                    selectedNode, !selectedNode.isSelected());
+              }
+            });
+          },
+          /*onTap: () {
+            setState(() {
+              //var x = detail.globalPosition.x;
+              //var selectedNode = findSelectedNode(root, x, y);
+              //if (selectedNode != null) {
+              //  selectRecursive(selectedNode, !selectedNode.isSelected());
+              //}
+            });
+          },
+          child: DragTarget(
+            builder: (context, List<String> candidateData, rejectedData) {
+              return CustomPaint(
+                painter: TreePainter(treeDraw),
+                size: Size(1024, 1024),
+              );
+            },
+            onWillAccept: (data) {
+              return true;
+            },
+            onAccept: (data) {
+              var k = 0;
+            },
+          ),*/
           child: CustomPaint(
             painter: TreePainter(treeDraw),
             size: Size(canvasWidth, canvasHeight),
