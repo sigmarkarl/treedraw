@@ -77,8 +77,8 @@ class _MyHomePageState extends State<MyHomePage> {
   //String tree =
   //    "(MT.ruberDSM1279:0.14903,MT.silvanusDSM9946:0.15015,(T.filiformis:0.10766,(T.oshimai:0.08602,(((T.brockianus:0.03466,<i>T.eggertsoni</i>:0.0333):0.04428,(((((((T.scotoductus1572:0.0113,T.scotoductus2101:0.01043):0.00037,T.scotoductus2127:0.01287):0.00086,(T.scotoductusSA01:-0.00001,T.scotoductus4063:0.00001):0.01315):0.00346,T.scotoductus346:0.01502):0.00363,T.scotoductus252:0.02305):0.00366,T.antranikiani:0.02794):0.06363,T.kawarayensis:0.06805):0.00298):0.00453,((T.thermophilusHB27:0.00411,T.thermophilusHB8:0.00409):0.07548,((T.aquaticus:0.07363,T.islandicus:0.07487):0.00245,(T.igniterrae:0.03362):0.03362):0.00354):0.00325):0.00605):0.02099):0.08672)";
   TreeDraw treeDraw = TreeDraw.withTreeUtil(treeutil);
-  double canvasWidth = double.infinity;
-  double canvasHeight = double.infinity;
+  double canvasWidth = 4096;
+  double canvasHeight = 4096;
   //treeDraw.setTreeUtil(treeutil, str);
 
   void _incrementCounter() {
@@ -93,6 +93,7 @@ class _MyHomePageState extends State<MyHomePage> {
       int leaves = treeDraw.root.getLeavesCount();
       var hsize = (treeDraw.hchunk * leaves);
       canvasHeight = hsize;
+      canvasWidth = 4096;
       //var h = treeDraw.getHeight(treeDraw.root);
       //debugPrint("hh " + h.toString());
     });
@@ -105,6 +106,7 @@ class _MyHomePageState extends State<MyHomePage> {
       int leaves = treeDraw.root.getLeavesCount();
       var hsize = (treeDraw.hchunk * leaves);
       canvasHeight = hsize;
+      canvasWidth = 4096;
     });
   }
 
@@ -137,70 +139,72 @@ class _MyHomePageState extends State<MyHomePage> {
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
-      body: GestureDetector(
-        /*onHorizontalDragStart: (detail) {
-          _x = detail.globalPosition.dx;
-        },
-        onVerticalDragStart: (detail) {
-          _y = detail.globalPosition.dy;
-        },
-        onHorizontalDragUpdate: (detail) {
-          setState(() {
-            _len -= detail.globalPosition.dx - _x;
+      body: SingleChildScrollView(
+        child: GestureDetector(
+          /*onHorizontalDragStart: (detail) {
             _x = detail.globalPosition.dx;
-          });
-        },
-        onVerticalDragUpdate: (detail) {
-          setState(() {
-            _len += detail.globalPosition.dy - _y;
+          },
+          onVerticalDragStart: (detail) {
             _y = detail.globalPosition.dy;
-          });
-        },*/
-        onLongPressStart: (details) {
-          setState(() {
-            var x = details.localPosition.dx;
-            var y = details.localPosition.dy;
-            var selectedNode = treeDraw.findSelectedNode(treeDraw.root, x, y);
-            if (selectedNode != null) {
-              treeDraw.reroot(selectedNode);
-            }
-          });
-        },
-        onTapDown: (details) {
-          setState(() {
-            var x = details.localPosition.dx;
-            var y = details.localPosition.dy;
-            var selectedNode = treeDraw.findSelectedNode(treeDraw.root, x, y);
-            if (selectedNode != null) {
-              treeDraw.selectRecursive(
-                  selectedNode, !selectedNode.isSelected());
-            }
-          });
-        },
-        /*onTap: () {
-          setState(() {
-            //var x = detail.globalPosition.x;
-            //var selectedNode = findSelectedNode(root, x, y);
-            //if (selectedNode != null) {
-            //  selectRecursive(selectedNode, !selectedNode.isSelected());
-            //}
-          });
-        },
-        child: DragTarget(
-          builder: (context, List<String> candidateData, rejectedData) {
-            return CustomPaint(
-              painter: TreePainter(treeDraw),
-              size: Size(1024, 1024),
-            );
           },
-          onWillAccept: (data) {
-            return true;
+          onHorizontalDragUpdate: (detail) {
+            setState(() {
+              _len -= detail.globalPosition.dx - _x;
+              _x = detail.globalPosition.dx;
+            });
           },
-          onAccept: (data) {
-            var k = 0;
+          onVerticalDragUpdate: (detail) {
+            setState(() {
+              _len += detail.globalPosition.dy - _y;
+              _y = detail.globalPosition.dy;
+            });
+          },*/
+          onLongPressStart: (details) {
+            setState(() {
+              var x = details.localPosition.dx;
+              var y = details.localPosition.dy;
+              var selectedNode = treeDraw.findSelectedNode(treeDraw.root, x, y);
+              if (selectedNode != null) {
+                treeDraw.pressroot
+                    ? treeDraw.setNode(selectedNode)
+                    : treeDraw.reroot(selectedNode);
+              }
+            });
           },
-        ),*/
-        child: SingleChildScrollView(
+          onTapDown: (details) {
+            setState(() {
+              var x = details.localPosition.dx;
+              var y = details.localPosition.dy;
+              var selectedNode = treeDraw.findSelectedNode(treeDraw.root, x, y);
+              if (selectedNode != null) {
+                treeDraw.selectRecursive(
+                    selectedNode, !selectedNode.isSelected());
+              }
+            });
+          },
+          /*onTap: () {
+            setState(() {
+              //var x = detail.globalPosition.x;
+              //var selectedNode = findSelectedNode(root, x, y);
+              //if (selectedNode != null) {
+              //  selectRecursive(selectedNode, !selectedNode.isSelected());
+              //}
+            });
+          },
+          child: DragTarget(
+            builder: (context, List<String> candidateData, rejectedData) {
+              return CustomPaint(
+                painter: TreePainter(treeDraw),
+                size: Size(1024, 1024),
+              );
+            },
+            onWillAccept: (data) {
+              return true;
+            },
+            onAccept: (data) {
+              var k = 0;
+            },
+          ),*/
           child: CustomPaint(
             painter: TreePainter(treeDraw),
             size: Size(canvasWidth, canvasHeight),
@@ -210,6 +214,7 @@ class _MyHomePageState extends State<MyHomePage> {
       drawer: Drawer(
         child: Column(
           children: <Widget>[
+            Text("Tree type"),
             ListTile(
               title: const Text('Default'),
               leading: Radio(
@@ -253,6 +258,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
             Divider(),
+            Text("Tree draw style"),
             ListTile(
               title: const Text('Center'),
               leading: Radio(
@@ -279,6 +285,35 @@ class _MyHomePageState extends State<MyHomePage> {
                 },
               ),
             ),
+            Divider(),
+            Text("Long press"),
+            ListTile(
+              title: const Text('Reroot'),
+              leading: Radio(
+                value: "Reroot",
+                groupValue: "Root",
+                onChanged: (String value) {
+                  setState(() {
+                    treeDraw.pressroot = false;
+                    Navigator.pop(context);
+                  });
+                },
+              ),
+            ),
+            ListTile(
+              title: const Text('Root'),
+              leading: Radio(
+                value: "Root",
+                groupValue: "Root",
+                onChanged: (String value) {
+                  setState(() {
+                    treeDraw.pressroot = true;
+                    Navigator.pop(context);
+                  });
+                },
+              ),
+            ),
+            Divider(),
             FlatButton(
               child: Text("Save"),
               color: Colors.blue,

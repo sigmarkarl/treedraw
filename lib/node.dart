@@ -621,7 +621,7 @@ class Node {
         ((parent != null && !parents.contains(parent))
             ? parent.getHeightParent(parents)
             : 0.0);
-    debugPrint("oulu");
+    //debugPrint("oulu");
     //console( h + " total " + d );
     return d;
   }

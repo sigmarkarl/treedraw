@@ -26,6 +26,7 @@ class TreeDraw {
   bool rightalign = false;
   bool circular = false;
   bool radial = false;
+  bool pressroot = false;
 
   TreeDraw.withTreeUtil(TreeUtil treeUtil) {
     this.treeutil = treeUtil;
@@ -48,8 +49,7 @@ class TreeDraw {
         }
       }
     }
-    debugPrint(
-        "meme " + x.toString() + "  " + y.toString() + " " + ret.toString());
+    //debugPrint("meme " + x.toString() + "  " + y.toString() + " " + ret.toString());
     return ret;
   }
 
@@ -2442,7 +2442,7 @@ class TreeDraw {
     double h = n.geth();
     double d = (h != null ? h : 0.0) +
         ((parent != null) ? getHeightParent(parent, parents) : 0.0);
-    print("klobbi" + d.toString());
+    //print("klobbi" + d.toString());
     return d;
   }
 
