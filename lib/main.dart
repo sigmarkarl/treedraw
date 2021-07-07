@@ -158,23 +158,15 @@ class _MyHomePageState extends State<MyHomePage> {
               _y = detail.globalPosition.dy;
             });
           },*/
-          onDoubleTapDown: (details) {
-            setState(() {
-              var x = details.localPosition.dx;
-              var y = details.localPosition.dy;
-              var selectedNode = treeDraw.findSelectedNode(treeDraw.root, x, y);
-              if (selectedNode != null) {
-                treeDraw.setNode(selectedNode);
-              }
-            });
-          },
           onLongPressStart: (details) {
             setState(() {
               var x = details.localPosition.dx;
               var y = details.localPosition.dy;
               var selectedNode = treeDraw.findSelectedNode(treeDraw.root, x, y);
               if (selectedNode != null) {
-                treeDraw.reroot(selectedNode);
+                treeDraw.pressroot
+                    ? treeDraw.setNode(selectedNode)
+                    : treeDraw.reroot(selectedNode);
               }
             });
           },
@@ -221,6 +213,7 @@ class _MyHomePageState extends State<MyHomePage> {
       drawer: Drawer(
         child: Column(
           children: <Widget>[
+            Text("Tree type"),
             ListTile(
               title: const Text('Default'),
               leading: Radio(
@@ -264,6 +257,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
             Divider(),
+            Text("Tree draw style"),
             ListTile(
               title: const Text('Center'),
               leading: Radio(
@@ -290,6 +284,35 @@ class _MyHomePageState extends State<MyHomePage> {
                 },
               ),
             ),
+            Divider(),
+            Text("Long press"),
+            ListTile(
+              title: const Text('Reroot'),
+              leading: Radio(
+                value: "Reroot",
+                groupValue: "Root",
+                onChanged: (String value) {
+                  setState(() {
+                    treeDraw.pressroot = false;
+                    Navigator.pop(context);
+                  });
+                },
+              ),
+            ),
+            ListTile(
+              title: const Text('Root'),
+              leading: Radio(
+                value: "Root",
+                groupValue: "Root",
+                onChanged: (String value) {
+                  setState(() {
+                    treeDraw.pressroot = true;
+                    Navigator.pop(context);
+                  });
+                },
+              ),
+            ),
+            Divider(),
             FlatButton(
               child: Text("Save"),
               color: Colors.blue,

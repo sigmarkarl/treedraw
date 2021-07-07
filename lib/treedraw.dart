@@ -26,6 +26,7 @@ class TreeDraw {
   bool rightalign = false;
   bool circular = false;
   bool radial = false;
+  bool pressroot = false;
 
   TreeDraw.withTreeUtil(TreeUtil treeUtil) {
     this.treeutil = treeUtil;
