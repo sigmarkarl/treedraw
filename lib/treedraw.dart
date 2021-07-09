@@ -1,3 +1,5 @@
+import 'package:treedraw/main.dart';
+
 import 'sequence.dart';
 import 'treeutil.dart';
 import 'node.dart';
@@ -26,7 +28,7 @@ class TreeDraw {
   bool rightalign = false;
   bool circular = false;
   bool radial = false;
-  bool pressroot = false;
+  LongPressBehaviour pressroot = LongPressBehaviour.reroot;
 
   TreeDraw.withTreeUtil(TreeUtil treeUtil) {
     this.treeutil = treeUtil;

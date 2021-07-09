@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:treedraw/treeutil.dart';
 import 'treepainter.dart';
 import 'treedraw.dart';
+import 'node.dart';
 import 'mobileappdrop.dart' if (dart.library.js) 'webappdrop.dart';
 
 import 'dart:ui';
@@ -72,6 +73,10 @@ _launchURLSimple(String url) async {
   await launch(url);
 }
 
+enum LongPressBehaviour { root, reroot }
+enum TreeDrawStyle { center, branch }
+enum TreeType { vertical, circular, radial }
+
 class _MyHomePageState extends State<MyHomePage> {
   //String tree =
   //    "(MT.ruberDSM1279:0.14903,MT.silvanusDSM9946:0.15015,(T.filiformis:0.10766,(T.oshimai:0.08602,(((T.brockianus:0.03466,<i>T.eggertsoni</i>:0.0333):0.04428,(((((((T.scotoductus1572:0.0113,T.scotoductus2101:0.01043):0.00037,T.scotoductus2127:0.01287):0.00086,(T.scotoductusSA01:-0.00001,T.scotoductus4063:0.00001):0.01315):0.00346,T.scotoductus346:0.01502):0.00363,T.scotoductus252:0.02305):0.00366,T.antranikiani:0.02794):0.06363,T.kawarayensis:0.06805):0.00298):0.00453,((T.thermophilusHB27:0.00411,T.thermophilusHB8:0.00409):0.07548,((T.aquaticus:0.07363,T.islandicus:0.07487):0.00245,(T.igniterrae:0.03362):0.03362):0.00354):0.00325):0.00605):0.02099):0.08672)";
@@ -79,6 +84,10 @@ class _MyHomePageState extends State<MyHomePage> {
   double canvasWidth = 4096;
   double canvasHeight = 4096;
   //treeDraw.setTreeUtil(treeutil, str);
+
+  Node selectedNode;
+  TreeDrawStyle treeDrawStyle = TreeDrawStyle.branch;
+  TreeType treeType = TreeType.vertical;
 
   void _incrementCounter() {
     setState(() {
@@ -164,7 +173,7 @@ class _MyHomePageState extends State<MyHomePage> {
               var y = details.localPosition.dy;
               var selectedNode = treeDraw.findSelectedNode(treeDraw.root, x, y);
               if (selectedNode != null) {
-                treeDraw.pressroot
+                treeDraw.pressroot == LongPressBehaviour.root
                     ? treeDraw.setNode(selectedNode)
                     : treeDraw.reroot(selectedNode);
               }
@@ -176,6 +185,7 @@ class _MyHomePageState extends State<MyHomePage> {
               var y = details.localPosition.dy;
               var selectedNode = treeDraw.findSelectedNode(treeDraw.root, x, y);
               if (selectedNode != null) {
+                this.selectedNode = selectedNode;
                 treeDraw.selectRecursive(
                     selectedNode, !selectedNode.isSelected());
               }
@@ -217,10 +227,11 @@ class _MyHomePageState extends State<MyHomePage> {
             ListTile(
               title: const Text('Default'),
               leading: Radio(
-                value: "Default",
-                groupValue: "TreeType",
-                onChanged: (String value) {
+                value: TreeType.vertical,
+                groupValue: treeType,
+                onChanged: (TreeType value) {
                   setState(() {
+                    treeType = value;
                     treeDraw.radial = false;
                     treeDraw.circular = false;
                     Navigator.pop(context);
@@ -231,10 +242,11 @@ class _MyHomePageState extends State<MyHomePage> {
             ListTile(
               title: const Text('Circular'),
               leading: Radio(
-                value: "Circular",
-                groupValue: "TreeType",
-                onChanged: (String value) {
+                value: TreeType.circular,
+                groupValue: treeType,
+                onChanged: (TreeType value) {
                   setState(() {
+                    treeType = value;
                     treeDraw.radial = false;
                     treeDraw.circular = true;
                     Navigator.pop(context);
@@ -245,10 +257,11 @@ class _MyHomePageState extends State<MyHomePage> {
             ListTile(
               title: const Text('Radial'),
               leading: Radio(
-                value: "Radial",
-                groupValue: "TreeType",
-                onChanged: (String value) {
+                value: TreeType.radial,
+                groupValue: treeType,
+                onChanged: (TreeType value) {
                   setState(() {
+                    treeType = value;
                     treeDraw.radial = true;
                     treeDraw.circular = false;
                     Navigator.pop(context);
@@ -261,10 +274,11 @@ class _MyHomePageState extends State<MyHomePage> {
             ListTile(
               title: const Text('Center'),
               leading: Radio(
-                value: "Center",
-                groupValue: "TreeDrawStyle",
-                onChanged: (String value) {
+                value: TreeDrawStyle.center,
+                groupValue: treeDrawStyle,
+                onChanged: (TreeDrawStyle value) {
                   setState(() {
+                    treeDrawStyle = value;
                     treeDraw.center = true;
                     Navigator.pop(context);
                   });
@@ -274,10 +288,11 @@ class _MyHomePageState extends State<MyHomePage> {
             ListTile(
               title: const Text('Branch'),
               leading: Radio(
-                value: "Branch",
-                groupValue: "TreeDrawStyle",
-                onChanged: (String value) {
+                value: TreeDrawStyle.branch,
+                groupValue: treeDrawStyle,
+                onChanged: (TreeDrawStyle value) {
                   setState(() {
+                    treeDrawStyle = value;
                     treeDraw.center = false;
                     Navigator.pop(context);
                   });
@@ -289,11 +304,11 @@ class _MyHomePageState extends State<MyHomePage> {
             ListTile(
               title: const Text('Reroot'),
               leading: Radio(
-                value: "Reroot",
-                groupValue: "Root",
-                onChanged: (String value) {
+                value: LongPressBehaviour.reroot,
+                groupValue: treeDraw.pressroot,
+                onChanged: (LongPressBehaviour value) {
                   setState(() {
-                    treeDraw.pressroot = false;
+                    treeDraw.pressroot = value;
                     Navigator.pop(context);
                   });
                 },
@@ -302,21 +317,47 @@ class _MyHomePageState extends State<MyHomePage> {
             ListTile(
               title: const Text('Root'),
               leading: Radio(
-                value: "Root",
-                groupValue: "Root",
-                onChanged: (String value) {
+                value: LongPressBehaviour.root,
+                groupValue: treeDraw.pressroot,
+                onChanged: (LongPressBehaviour value) {
                   setState(() {
-                    treeDraw.pressroot = true;
+                    treeDraw.pressroot = value;
                     Navigator.pop(context);
                   });
                 },
               ),
             ),
             Divider(),
-            FlatButton(
+            TextButton(
+              child: Text("Delete selection"),
+              //color: Colors.blue,
+              //splashColor: Colors.blueAccent,
+              onPressed: () {
+                setState(() {
+                  var parent = selectedNode.getParent();
+                  if (parent != null) parent.removeNode(selectedNode);
+                  selectedNode = null;
+                  treeDraw.root.countLeaves();
+                  Navigator.pop(context);
+                });
+              },
+            ),
+            TextButton(
+              child: Text("Keep selection"),
+              //color: Colors.blue,
+              //splashColor: Colors.blueAccent,
+              onPressed: () {
+                setState(() {
+                  //treeDraw.delete()
+                  Navigator.pop(context);
+                });
+              },
+            ),
+            Divider(),
+            TextButton(
               child: Text("Save"),
-              color: Colors.blue,
-              splashColor: Colors.blueAccent,
+              //color: Colors.blue,
+              //splashColor: Colors.blueAccent,
               onPressed: () {
                 setState(() {
                   final recorder = PictureRecorder();
